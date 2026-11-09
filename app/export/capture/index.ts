@@ -3,8 +3,8 @@
  * into the tab and calls `window.__storyframeCapture.capture(selector, name)`.
  */
 
-import { CONTENT_ROOT } from './types'
-import { captureElement, type ICaptureResult } from './walk'
+import { CONTENT_ROOT } from './types.ts'
+import { captureElement, type ICaptureResult } from './walk.ts'
 
 declare global {
   interface Window {

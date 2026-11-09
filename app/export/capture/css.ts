@@ -3,7 +3,7 @@
  * converter in the catalog page and by the export builder in Node.
  */
 
-import type { IRgba, TEffect } from './types'
+import type { IRgba, TEffect } from './types.ts'
 
 const NAMED: Record<string, string> = { transparent: 'rgba(0, 0, 0, 0)', white: '#ffffff', black: '#000000' }
 

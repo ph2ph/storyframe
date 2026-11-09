@@ -7,6 +7,7 @@ First version as a separate package. The export and the Variants block are extra
 in a separate repository, `storyframe-plugin`, and takes the export format from this package.
 
 - The package is published on npmjs as `@ph2ph/storyframe`, the CLI command is called `storyframe`. MIT license.
+- TypeScript sources; the package ships compiled JavaScript with declarations in `dist/`.
 - CLI `storyframe`: `export`, `serve`, `shots-server`, `compare`, `emulate`.
   The command runs in the project folder; the paths (`storybook`, `out`, `workDir`) come from the configuration.
 - Configuration `storyframe.config.ts` or `.mjs`, the `defineConfig` helper from `@ph2ph/storyframe/config`.

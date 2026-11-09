@@ -12,10 +12,10 @@
 import { Component, useContext, useEffect, useMemo, type ContextType, type ReactNode } from 'react'
 import { DocsContext, Heading, useOf } from '@storybook/addon-docs/blocks'
 import { composeStory } from '@storybook/react-vite'
-import type { IStoryframeConfig } from '../config.d.mts'
-import { docsMatrices, type IDocsMatrix } from '../export/docsMatrix.mjs'
-import { axisLabel } from '../export/variants'
-import { cellAnnotations } from './cell'
+import type { IStoryframeConfig } from '../config.ts'
+import { docsMatrices, type IDocsMatrix } from '../export/docsMatrix.ts'
+import { axisLabel } from '../export/variants.ts'
+import { cellAnnotations } from './cell.ts'
 
 type TDocsContext = ContextType<typeof DocsContext>
 type TPreparedStory = ReturnType<TDocsContext['componentStoriesFromCSFFile']>[number]

@@ -1,0 +1,14 @@
+{
+  // Build of the published package: app/ and bin/ compiled into dist/ with declarations. Relative `.ts` imports
+  // are rewritten to `.js`, so Node runs dist/ without type stripping (it refuses to strip under node_modules).
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "rewriteRelativeImportExtensions": true
+  },
+  "include": ["app", "bin"],
+  "exclude": ["**/*.test.ts", "app/export/fixtures"]
+}

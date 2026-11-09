@@ -3,8 +3,8 @@
  * hands them out not only with `gap` but also with margins (`Stack`, button icons), which Figma does not have.
  */
 
-import { parsePx } from './css'
-import type { IBox, TLayout } from './types'
+import { parsePx } from './css.ts'
+import type { IBox, TLayout } from './types.ts'
 
 const JUSTIFY: Record<string, 'min' | 'center' | 'max' | 'space-between'> = {
   'flex-start': 'min',

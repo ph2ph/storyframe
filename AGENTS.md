@@ -9,32 +9,38 @@ instructions for agents.
 ## Commands
 
 ```bash
-yarn test            # vitest: exporter, DOM converter (jsdom), MUI adapter
-yarn typecheck       # tsc over the package
+yarn build           # tsc -p tsconfig.build.json into dist/ (what ships to npm; portal consumers use it too)
+yarn test            # vitest over the sources: exporter, DOM converter (jsdom), MUI adapter
+yarn typecheck       # tsc over the package without emit
 yarn lint            # oxlint
 yarn format          # oxfmt; yarn format:check without writing
-node bin/storyframe.mjs <command>   # CLI in the project folder: export, serve, shots-server, compare, emulate
+node bin/storyframe.ts <command>    # CLI from the sources, in the project folder: export, serve, shots-server, compare, emulate
 ```
 
-Node 24 (`.nvmrc`): `.ts` sources run in Node itself without a build step. Definition of done: `typecheck`,
-`lint`, `test`, `format:check`. A change of the export format is additionally checked in the plugin repository
+Node 24 (`.nvmrc`): the `.ts` sources run in Node itself during development, tests run on the sources. The
+package ships `dist/` only: Node refuses to strip types under `node_modules`, so the build rewrites relative
+`.ts` imports to `.js` (`rewriteRelativeImportExtensions`). Definition of done: `typecheck`, `lint`, `test`,
+`format:check`, `build`; after a change run `yarn build` so that the kit and the plugin, linked through
+`portal:`, see it. A change of the export format is additionally checked in the plugin repository
 against a real project export (`STORYFRAME_KIT=<project>/storybook-static/figma-data/kit.json yarn test`).
 
 ## Structure
 
-- `bin/storyframe.mjs` contains the CLI; every command is a module `app/export/*.mjs` with `main(argv, root)`.
-- `app/export/paths.mjs`: the project root (the launch folder), paths from the configuration, the package root.
-- `app/export/config.mjs` and `catalog.mjs`: the project configuration and the layout of the catalog into pages;
-  `catalog.mjs` uses no Node modules because the Variants block reads it in the browser.
-- `app/export/theme.mjs`: loading of the project theme module through Vite SSR and format validation;
-  `app/theme.d.mts` describes the theme format; `tokens.mjs` builds the export tokens from the theme.
+- `bin/storyframe.ts` contains the CLI; every command is a module `app/export/*.ts` with `main(argv, root)`,
+  loaded through a dynamic import with a literal path so that the build can rewrite the extension.
+- `app/export/paths.ts`: the project root (the launch folder), paths from the configuration, the package root.
+- `app/export/config.ts` and `catalog.ts`: the project configuration and the layout of the catalog into pages;
+  `catalog.ts` uses no Node modules because the Variants block reads it in the browser.
+- `app/export/theme.ts`: loading of the project theme module through Vite SSR and format validation;
+  `app/theme.ts` describes the theme format; `tokens.ts` builds the export tokens from the theme.
 - `app/export/capture/*.ts`: the DOM to layer tree converter, built by esbuild and injected into the Storybook
-  page; `capture/types.ts` is the export format shared by the exporter and the plugin; `schema.mjs` repeats it
-  in valibot.
-- `app/export/dataset.mjs`: the export orchestrator, that is the plan (`plan.mjs`, `discover.mjs`, `matrix.mjs`),
-  capture (`capture.mjs`), combining of modes and binding to tokens (`merge.mjs`, `colorMatch.mjs`), merging of
-  indistinguishable variants (`dedupe.mjs`), instances (`signatures.mjs`), invariants (`invariants.mjs`).
-- `app/storybook`: the Variants block and the docs page; the matrices are built by `app/export/docsMatrix.mjs`
+  page; `capture/types.ts` is the export format shared by the exporter and the plugin; `schema.ts` repeats it
+  in valibot. The capture entry for esbuild follows the extension of the running file: `.ts` from the sources,
+  `.js` from `dist/`.
+- `app/export/dataset.ts`: the export orchestrator, that is the plan (`plan.ts`, `discover.ts`, `matrix.ts`),
+  capture (`capture.ts`), combining of modes and binding to tokens (`merge.ts`, `colorMatch.ts`), merging of
+  indistinguishable variants (`dedupe.ts`), instances (`signatures.ts`), invariants (`invariants.ts`).
+- `app/storybook`: the Variants block and the docs page; the matrices are built by `app/export/docsMatrix.ts`
   by the same rules as the export.
 
 ## Rules
@@ -44,7 +50,7 @@ against a real project export (`STORYFRAME_KIT=<project>/storybook-static/figma-
   projects is a configuration or adapter option, not a literal in the code. Token conventions (color priorities
   and groups, text colors, the full-circle corner radius, the code hint) are stored in the token fields of the
   theme and filled by the adapter.
-- The export format changes in lockstep across `capture/types.ts`, `schema.mjs` and the plugin; an incompatible
+- The export format changes in lockstep across `capture/types.ts`, `schema.ts` and the plugin; an incompatible
   change bumps `SCHEMA_VERSION`.
 - Identifiers, comments and docs in English. Russian stays only in runtime strings that the users of a kit see.
 - Comments are about implementation nuances and Storybook and MUI specifics, without retelling the code.

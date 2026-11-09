@@ -16,36 +16,46 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": "./bin/storyframe.mjs",
+  "bin": {
+    "storyframe": "./dist/bin/storyframe.js"
+  },
   "exports": {
     "./config": {
-      "types": "./app/config.d.mts",
-      "default": "./app/config.mjs"
+      "types": "./dist/app/config.d.ts",
+      "default": "./dist/app/config.js"
     },
     "./mui": {
-      "types": "./app/mui/index.d.mts",
-      "default": "./app/mui/index.mjs"
+      "types": "./dist/app/mui/index.d.ts",
+      "default": "./dist/app/mui/index.js"
     },
-    "./storybook": "./app/storybook/index.ts",
-    "./format": "./app/export/capture/types.ts",
-    "./variants": "./app/export/variants.ts",
+    "./storybook": {
+      "types": "./dist/app/storybook/index.d.ts",
+      "default": "./dist/app/storybook/index.js"
+    },
+    "./format": {
+      "types": "./dist/app/export/capture/types.d.ts",
+      "default": "./dist/app/export/capture/types.js"
+    },
+    "./variants": {
+      "types": "./dist/app/export/variants.d.ts",
+      "default": "./dist/app/export/variants.js"
+    },
     "./zip": {
-      "types": "./app/export/zip.d.mts",
-      "default": "./app/export/zip.mjs"
+      "types": "./dist/app/export/zip.d.ts",
+      "default": "./dist/app/export/zip.js"
     },
     "./package.json": "./package.json"
   },
   "files": [
-    "bin",
-    "app",
-    "!**/*.test.*",
-    "!**/fixtures/**"
+    "dist"
   ],
   "engines": {
     "node": ">=22.22.1"
   },
   "packageManager": "yarn@4.17.0",
   "scripts": {
+    "build": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" && tsc -p tsconfig.build.json && node -e \"fs.chmodSync('dist/bin/storyframe.js', 0o755)\"",
+    "prepack": "yarn build",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json",
@@ -89,6 +99,7 @@
     "@storybook/addon-docs": "~10.6.4",
     "@storybook/react-vite": "~10.6.4",
     "@types/jsdom": "^30",
+    "@types/node": "^24",
     "@types/react": "^19.2.14",
     "jsdom": "^30",
     "oxfmt": "0.72.0",

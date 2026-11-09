@@ -4,6 +4,6 @@
  * addon (hover and focus in the cells).
  */
 
-export { isVariantsCell } from './cell'
-export { createDocsPage } from './docsPage'
-export { Variants } from './variants'
+export { isVariantsCell } from './cell.ts'
+export { createDocsPage } from './docsPage.tsx'
+export { Variants } from './variants.tsx'

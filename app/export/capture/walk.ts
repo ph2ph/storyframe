@@ -17,10 +17,10 @@ import {
   parsePx,
   parseRadius,
   sameColor,
-} from './css'
-import { absorbEdgeMargins, absorbOffsets, flexLayout, gapsVary, isFlex, uniformGap, unstretched } from './layout'
-import { hashString, maskToSvg, serializeSvg, svgFromMask } from './svg'
-import { SVG_TINT } from './types'
+} from './css.ts'
+import { absorbEdgeMargins, absorbOffsets, flexLayout, gapsVary, isFlex, uniformGap, unstretched } from './layout.ts'
+import { hashString, maskToSvg, serializeSvg, svgFromMask } from './svg.ts'
+import { SVG_TINT } from './types.ts'
 import type {
   IBox,
   IFrameNode,
@@ -34,7 +34,7 @@ import type {
   TLayout,
   TPaint,
   TSizing,
-} from './types'
+} from './types.ts'
 
 export interface ICaptureResult {
   tree: TLayerNode

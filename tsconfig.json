@@ -5,7 +5,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     // `.ts` in imports: the export is run by Node with type stripping, and it needs the full file path.
     "allowImportingTsExtensions": true,
     "strict": true,
@@ -19,5 +19,5 @@
     "noFallthroughCasesInSwitch": true,
     "noEmit": true
   },
-  "include": ["app", "*.config.ts"]
+  "include": ["app", "bin", "*.config.ts"]
 }

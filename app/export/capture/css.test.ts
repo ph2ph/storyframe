@@ -11,7 +11,7 @@ import {
   parseLinearGradient,
   parseRadius,
   splitTopLevel,
-} from './css'
+} from './css.ts'
 
 describe('CSS parsing', () => {
   it('colors: hex, rgb, rgba, short forms, transparent', () => {

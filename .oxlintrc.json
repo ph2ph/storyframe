@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": [".claude/", ".storyframe/"],
+  "ignorePatterns": [".claude/", "dist/"],
   // Import plugin only at the root: from an override no module graph is built and import/no-cycle finds no cycles.
   "plugins": ["typescript", "react", "import"],
   "categories": {

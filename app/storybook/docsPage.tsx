@@ -4,8 +4,8 @@
  */
 
 import { Controls, Description, Primary, Stories, Subtitle, Title } from '@storybook/addon-docs/blocks'
-import type { IStoryframeConfig } from '../config.d.mts'
-import { Variants } from './variants'
+import type { IStoryframeConfig } from '../config.ts'
+import { Variants } from './variants.tsx'
 
 /**
  * Docs page for `parameters.docs.page` with the Variants block according to the project configuration.

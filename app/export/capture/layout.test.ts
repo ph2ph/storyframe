@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { absorbOffsets, flexLayout, gapsVary, uniformGap, unstretched, wrapGaps } from './layout'
-import type { TLayout } from './types'
+import { absorbOffsets, flexLayout, gapsVary, uniformGap, unstretched, wrapGaps } from './layout.ts'
+import type { TLayout } from './types.ts'
 
 const flow = (
   mode: 'row' | 'column',

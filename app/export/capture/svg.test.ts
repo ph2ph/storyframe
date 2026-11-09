@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { hashString, maskToSvg, serializeSvg, svgFromMask } from './svg'
+import { hashString, maskToSvg, serializeSvg, svgFromMask } from './svg.ts'
 
 const MASK =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 8'%3E%3Cpath d='M3.5 7L0.2 4'/%3E%3C/svg%3E\")"

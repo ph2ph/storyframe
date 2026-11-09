@@ -4,7 +4,7 @@
   "singleQuote": true,
   "printWidth": 120,
   "sortPackageJson": false,
-  "ignorePatterns": [".claude/", ".storyframe/"],
+  "ignorePatterns": [".claude/", "dist/"],
   "sortImports": {
     "newlinesBetween": false,
     "customGroups": [

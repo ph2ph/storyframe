@@ -18,7 +18,8 @@ defined in the project.
 
 ## Requirements
 
-- Node 24 (not lower than 22.22.1): the package ships as sources, Node runs `.ts` itself.
+- Node 24 (not lower than 22.22.1): the project configuration and theme module are TypeScript files that Node
+  executes itself. The package ships compiled JavaScript with declarations in `dist/`.
 - A Storybook 10 static build (`storybook build`) with React and Vite.
 - Chrome or Chromium for capture: `google-chrome` by default, another path via the `CHROME` variable.
 - Vite in the project if a theme module is set (it is loaded through Vite SSR).
@@ -167,25 +168,29 @@ A custom docs page can be assembled from the `Variants` block with the `config` 
 
 ## The Figma plugin
 
-The plugin is developed in the `storyframe-plugin` repository: its build, tests and the designer guide live
-there. This package gives the plugin shared code through three entry points:
+The plugin is developed in the [storyframe-plugin](https://github.com/ph2ph/storyframe-plugin) repository: its
+build, tests and the designer guide live there. This package gives the plugin shared code through three entry points:
 
 - `@ph2ph/storyframe/format`: the export format types and `SCHEMA_VERSION`;
 - `@ph2ph/storyframe/variants`: axis and state labels of the variant matrix, shared by Figma and the Variants
   block;
 - `@ph2ph/storyframe/zip`: the ZIP writer the plugin uses to assemble its archive.
 
-The export format changes in lockstep across `app/export/capture/types.ts`, `schema.mjs` and the plugin code. An
+The export format changes in lockstep across `app/export/capture/types.ts`, `schema.ts` and the plugin code. An
 incompatible change bumps `SCHEMA_VERSION`, and the plugin refuses to apply an export of another schema.
 
 ## Development
 
 ```bash
-yarn test          # vitest: exporter, DOM converter, MUI adapter
-yarn typecheck     # tsc over the package
+yarn build         # tsc into dist/: compiled JavaScript and declarations, the only thing that ships
+yarn test          # vitest over the TypeScript sources: exporter, DOM converter, MUI adapter
+yarn typecheck     # tsc over the package without emit
 yarn lint
 yarn format
 ```
+
+The sources are TypeScript (`app/`, `bin/`) and run in Node directly during development. A project that links
+the package from a sibling folder (`portal:`) uses `dist/`, so run `yarn build` after changes.
 
 Checking the plugin against a real project export lives in the `storyframe-plugin` repository.
 
