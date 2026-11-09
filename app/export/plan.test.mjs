@@ -39,30 +39,30 @@ const CONFIG = normalizeConfig({
   ],
 })
 
-describe('план выгрузки', () => {
+describe('export plan', () => {
   const plan = planJobs(layoutCatalog(ENTRIES, CONFIG), ENTRIES, CONFIG)
   const byTitle = Object.fromEntries(plan.map((entry) => [entry.item.title, entry]))
 
-  it('пункт без записи конфигурации ищет набор сам, остальные истории - фреймами', () => {
+  it('an item without a configuration entry discovers its set itself, the other stories go as frames', () => {
     const palette = byTitle['Гайдлайн/Палитра']
     expect(palette.components).toEqual([
       expect.objectContaining({ id: 'Палитра', storyId: 'guide-palette--main', root: null, auto: true }),
     ])
-    // Набор снят не с «Базовой» истории: сама история показывает больше набора и идёт ещё и фреймом.
+    // The set is not captured from the "Basic" story: the story shows more than the set and also goes as a frame.
     expect(palette.frames.map((entry) => entry.id)).toEqual(['guide-palette--main', 'guide-palette--brand'])
   })
 
-  it('запись конфигурации задаёт набор пункта; история со сценарием play не выгружается', () => {
+  it('a configuration entry defines the item set; a story with a play scenario is not exported', () => {
     const button = byTitle['Компоненты MUI/Inputs/Button']
     expect(button.components.map((entry) => [entry.id, entry.auto])).toEqual([['Button', false]])
     expect(button.frames.map((entry) => entry.id)).toEqual(['mui-inputs-button--colors'])
   })
 
-  it('пропущенный компонент не даёт ни набора, ни фреймов', () => {
+  it('a skipped component yields neither a set nor frames', () => {
     expect(byTitle['Компоненты MUI/Utils/Modal']).toMatchObject({ components: [], frames: [] })
   })
 
-  it('набор вложенного компонента: «Базовая» история пункта идёт и фреймом', () => {
+  it('a nested component set: the item "Basic" story also goes as a frame', () => {
     expect(byTitle['Компоненты/MiniDrawer'].components.map((entry) => entry.id)).toEqual(['DrawerItem'])
     expect(byTitle['Компоненты/MiniDrawer'].frames.map((entry) => entry.id)).toEqual([
       'kit-drawer--basic',
@@ -70,12 +70,12 @@ describe('план выгрузки', () => {
     ])
   })
 
-  it('--only оставляет пункты по подстроке заголовка или id набора', () => {
+  it('--only keeps items by a substring of the title or set id', () => {
     const only = planJobs(layoutCatalog(ENTRIES, CONFIG), ENTRIES, CONFIG, 'drawerit')
     expect(only.map((entry) => entry.item.title)).toEqual(['Компоненты/MiniDrawer'])
   })
 
-  it('страницы из результатов: история без корня компонента идёт фреймом, пустые пункты отбрасываются', () => {
+  it('pages from results: a story without a component root goes as a frame, empty items are dropped', () => {
     const results = {
       components: new Map([['Button', { id: 'Button', storyUrl: 'http://stand/button' }]]),
       stories: new Map([

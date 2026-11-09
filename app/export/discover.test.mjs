@@ -46,15 +46,15 @@ const INDEX = [
   { type: 'story', id: 'гайдлайн-цвета--basic', title: 'Гайдлайн/Цвета', importPath: './src/g.tsx' },
 ]
 
-describe('обнаружение компонентов каталога', () => {
-  it('«Базовая» история пункта - `--basic`, иначе первая', () => {
+describe('discovery of catalog components', () => {
+  it('the "Basic" story of an item is `--basic`, otherwise the first one', () => {
     const fab = INDEX.filter((entry) => entry.type === 'story' && entry.title === 'Компоненты MUI/Inputs/Fab')
     expect(pickStory(fab).id).toBe('компоненты-mui-inputs-fab--basic')
     const table = INDEX.filter((entry) => entry.title === 'Компоненты/DataTable')
     expect(pickStory(table).id).toBe('компоненты-datatable--collapsed')
   })
 
-  it('оси из argTypes: списки без inherit, флаги без состояний и модификаторов', () => {
+  it('axes from argTypes: lists without inherit, flags without states and modifiers', () => {
     const argTypes = {
       color: { control: 'select', options: ['inherit', 'primary', 'secondary'] },
       size: { control: 'select', options: ['small'] },
@@ -69,7 +69,7 @@ describe('обнаружение компонентов каталога', () =>
     expect(autoStates({ error: { control: 'boolean' } })).toEqual(['default', 'error'])
   })
 
-  it('предел матрицы: сначала отбрасываются флаги, затем списки с конца', () => {
+  it('matrix limit: flags are dropped first, then lists from the end', () => {
     const argTypes = {
       color: { control: 'select', options: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] },
       size: { control: 'select', options: ['s', 'm', 'l'] },
@@ -86,7 +86,7 @@ describe('обнаружение компонентов каталога', () =>
     expect(entry.axes[0]).toEqual({ name: 'Color', arg: 'color', exclude: ['inherit'] })
   })
 
-  it('корень истории - первый элемент с классом «Префикс+Имя-root», иначе запасной селектор', () => {
+  it('the story root is the first element with a "Prefix+Name-root" class, otherwise the fallback selector', () => {
     const element = (classes, children = []) => ({ classList: classes, children })
     const all = []
     const walk = (node) => {
@@ -104,7 +104,7 @@ describe('обнаружение компонентов каталога', () =>
   })
 })
 
-describe('исключение значения, на котором падает история', () => {
+describe('excluding the value on which the story fails', () => {
   const entry = {
     id: 'Select',
     auto: true,
@@ -115,7 +115,7 @@ describe('исключение значения, на котором падае�
     ],
   }
 
-  it('разбирает вариант из текста ошибки и находит умолчания осей', () => {
+  it('parses the variant from the error message and finds the axis defaults', () => {
     const message =
       'компоненты-mui-inputs-select--basic Variant=standard, Multiple=true, State=default (light): Error: #2'
     expect(failedVariant(message)).toEqual({ Variant: 'standard', Multiple: 'true', State: 'default' })
@@ -126,7 +126,7 @@ describe('исключение значения, на котором падае�
     expect(defaultValue(entry, 'State', initialArgs)).toBe('default')
   })
 
-  it('убирает значение флага (ось с одним значением исчезает), списка и состояния', () => {
+  it('removes a flag value (an axis with a single value disappears), a list value and a state', () => {
     expect(withoutValue(entry, 'Multiple', 'true').axes.map((axis) => axis.name)).toEqual(['Variant'])
     expect(withoutValue(entry, 'Variant', 'standard').axes[0].exclude).toEqual(['inherit', 'standard'])
     expect(withoutValue(entry, 'State', 'disabled').states).toEqual(['default', 'hover'])

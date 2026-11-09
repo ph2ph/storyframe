@@ -3,15 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { normalizeConfig } from './catalog.mjs'
 import { projectPaths } from './paths.mjs'
 
-describe('пути проекта', () => {
-  it('по умолчанию: сборка Storybook, выгрузка в ней, рабочая папка .storyframe', () => {
+describe('project paths', () => {
+  it('defaults: the Storybook static build, the export inside it, the .storyframe work folder', () => {
     const paths = projectPaths('/project', normalizeConfig())
     expect(paths.storybook).toBe(path.resolve('/project/storybook-static'))
     expect(paths.out).toBe(path.resolve('/project/storybook-static/figma-data'))
     expect(paths.shots.figma).toBe(path.resolve('/project/.storyframe/shots/figma'))
   })
 
-  it('пути из конфигурации - от корня проекта', () => {
+  it('paths from the configuration are resolved from the project root', () => {
     const paths = projectPaths(
       '/project',
       normalizeConfig({ storybook: 'dist/sb', out: 'dist/figma', workDir: '.tmp/sf' }),

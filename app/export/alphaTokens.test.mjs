@@ -58,13 +58,13 @@ function bundle() {
 }
 
 describe('deriveAlphaTokens', () => {
-  it('заводит токены с альфой на каждую пару «токен + прозрачность» и убирает прозрачные заливки', () => {
+  it('creates an alpha token for every "token + opacity" pair and removes transparent fills', () => {
     const data = bundle()
     const added = deriveAlphaTokens(data)
     expect(added.map((token) => token.name)).toEqual(['primary/main-08', 'primary/main-35', 'primary/main-50'])
     expect(added[0]).toMatchObject({ id: 'palette.primary.main@0.08', light: { a: 0.08 }, dark: { a: 0.08 } })
     expect(added[0].description).toContain('alpha(theme.palette.primary.main, 0.08)')
-    // Подсказку кода производный токен берёт у базового, признак цвета текста - тоже.
+    // The derived token takes the code hint from the base token, and the text color flag as well.
     expect(added[0].code).toBe('theme.palette.primary.main@0.08')
     expect(added[0]).not.toHaveProperty('text')
     const tree = data.components[0].variants[0].tree

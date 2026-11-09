@@ -1,7 +1,7 @@
 /*
- * Пары «токен + прозрачность» в заливках, обводках, тенях и тексте становятся отдельными цветовыми токенами
- * с альфой: Figma при присвоении привязанной заливки сбрасывает её непрозрачность на альфу переменной,
- * поэтому «primary/main на 8 %» живёт только как своя переменная `primary/main-08`.
+ * "Token + opacity" pairs in fills, strokes, shadows and text become separate color tokens with alpha: when
+ * a bound fill is assigned, Figma resets its opacity to the variable's alpha, so "primary/main at 8 %" lives
+ * only as its own variable `primary/main-08`.
  */
 
 const round = (value) => Math.round(value * 10000) / 10000
@@ -21,14 +21,14 @@ function derive(base, opacity) {
     dark: withAlpha(base.dark),
     description: `${base.name} с непрозрачностью ${percent} %: alpha(${code}, ${opacity})`,
     ...(base.code === undefined ? {} : { code: alphaTokenId(base.code, opacity) }),
-    // Полупрозрачный цвет текста - всё ещё цвет текста.
+    // A semi-transparent text color is still a text color.
     ...(base.text === undefined ? {} : { text: base.text }),
   }
 }
 
 /**
- * Переписывает ссылки `{ token, opacity }` на производные токены (прибавляя их в `bundle.tokens.colors`),
- * полностью прозрачные заливки, обводки и тени убирает. Возвращает добавленные токены.
+ * Rewrites `{ token, opacity }` references to derived tokens (adding them to `bundle.tokens.colors`) and
+ * removes fully transparent fills, strokes and shadows. Returns the added tokens.
  */
 export function deriveAlphaTokens(bundle) {
   const byId = new Map(bundle.tokens.colors.map((token) => [token.id, token]))

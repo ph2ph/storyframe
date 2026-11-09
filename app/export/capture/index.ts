@@ -1,6 +1,6 @@
 /*
- * Точка сборки конвертера для страницы каталога: esbuild собирает её в IIFE, сборщик внедряет в вкладку и
- * вызывает `window.__storyframeCapture.capture(selector, name)`.
+ * Build entry of the converter for the catalog page: esbuild bundles it into an IIFE, the builder injects it
+ * into the tab and calls `window.__storyframeCapture.capture(selector, name)`.
  */
 
 import { CONTENT_ROOT } from './types'
@@ -16,8 +16,8 @@ declare global {
 }
 
 /**
- * Содержимое истории без обёрток: от корня Storybook вниз, пока у элемента ровно один видимый ребёнок.
- * Не зависит ни от декоратора каталога, ни от библиотеки компонентов.
+ * Story content without wrappers: from the Storybook root downwards while the element has exactly one visible
+ * child. Depends neither on the catalog decorator nor on the component library.
  */
 function contentRoot(doc: Document): Element | null {
   let element: Element = doc.getElementById('storybook-root') ?? doc.getElementById('root') ?? doc.body

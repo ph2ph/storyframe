@@ -7,8 +7,8 @@ const image = (width, height, rgba) => ({
   data: new Uint8Array(width * height * 4).map((_, i) => rgba[i % 4]),
 })
 
-describe('сверка снимков', () => {
-  it('считает долю отличающихся пикселей по пересечению и разницу размеров', () => {
+describe('screenshot comparison', () => {
+  it('counts the share of differing pixels over the intersection and the size difference', () => {
     const reference = image(4, 4, [255, 0, 0, 255])
     const candidate = image(4, 2, [255, 0, 0, 255])
     candidate.data.set([0, 0, 255, 255], 0)
@@ -20,7 +20,7 @@ describe('сверка снимков', () => {
     expect(triptych(reference, candidate, diff).width).toBe(4 + 4 + 4 + 16)
   })
 
-  it('прозрачный экспорт Figma сравнивается поверх белого', () => {
+  it('a transparent Figma export is compared over white', () => {
     const reference = image(2, 2, [255, 255, 255, 255])
     const candidate = image(2, 2, [0, 0, 0, 0])
     expect(compareImages(reference, candidate).mismatch).toBe(0)

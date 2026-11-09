@@ -1,8 +1,8 @@
 import type { IStoryframeTheme } from '../theme.d.mts'
 
 /**
- * Тема MUI в той мере, в какой её читает адаптер: результат `createTheme` подходит как есть. Тип открытый,
- * чтобы storyframe не зависел от версии `@mui/material`.
+ * MUI theme to the extent the adapter reads it: the result of `createTheme` fits as is. The type is open so
+ * that storyframe does not depend on the `@mui/material` version.
  */
 export interface IMuiThemeLike {
   palette?: object
@@ -14,32 +14,32 @@ export interface IMuiThemeLike {
 
 export interface IMuiThemeOptions {
   light: IMuiThemeLike
-  /** Тёмная тема; без неё оба режима берут светлую. */
+  /** Dark theme; without it both modes take the light one. */
   dark?: IMuiThemeLike
-  /** Шрифты темы и их начертания. По умолчанию - семейства и начертания стилей текста. */
+  /** Theme fonts and their weights. By default, the families and weights of the text styles. */
   fonts?: { family: string; weights: number[] }[]
-  /** Скругления: ключ `theme.shape` → имя переменной (`borderRadius` → `md`). По умолчанию - все числа `shape`. */
+  /** Corner radii: `theme.shape` key → variable name (`borderRadius` → `md`). By default, all numbers of `shape`. */
   radii?: Record<string, string>
-  /** Шаги `theme.spacing(n)` - переменные отступов. По умолчанию 0.5, 1, 1.5, 2, 3, 4, 6, 8. */
+  /** `theme.spacing(n)` steps that become spacing variables. Defaults to 0.5, 1, 1.5, 2, 3, 4, 6, 8. */
   spacing?: number[]
-  /** Имена теней по номеру `theme.shadows` (`{ 1: 'xs' }`). По умолчанию - номер. */
+  /** Shadow names by `theme.shadows` index (`{ 1: 'xs' }`). By default, the index. */
   shadowNames?: Record<number, string>
-  /** Дополнительные стили текста: варианты с другим семейством (`Typography/mono/body1`). */
+  /** Extra text styles: variants with a different family (`Typography/mono/body1`). */
   extraTypography?: { prefix: string; fontFamily: string; variants: string[] }[]
-  /** Свечение полотна: адрес значения в теме (`palette.background.gradient`) или функция от темы режима. */
+  /** Canvas glow: the value path in the theme (`palette.background.gradient`) or a function of the mode's theme. */
   canvas?: string | ((theme: IMuiThemeLike) => string | undefined)
-  /** Описание токена по адресу (`palette.primary.main`, `shape.borderRadius`). */
+  /** Token description by path (`palette.primary.main`, `shape.borderRadius`). */
   describe?: (address: string) => string | undefined
-  /** Роли оформления плагина поверх ролей MUI по умолчанию. */
+  /** Plugin decoration roles on top of the default MUI roles. */
   roles?: Partial<Record<keyof typeof MUI_ROLES, string>>
   /**
-   * Приоритеты цветов с одинаковыми значениями по роли краски вместо `MUI_COLOR_PRIORITY` (списки ролей
-   * заменяются целиком): первый подходящий шаблон адреса побеждает. Для палитры с расширениями.
+   * Priorities of colors with the same values per paint role instead of `MUI_COLOR_PRIORITY` (role lists are
+   * replaced as a whole): the first matching path pattern wins. For a palette with extensions.
    */
   colorPriority?: Partial<Record<'fill' | 'text' | 'stroke', RegExp[]>>
-  /** Какие адреса палитры - цвета текста, вместо `MUI_TEXT_COLOR`. */
+  /** Which palette paths are text colors, instead of `MUI_TEXT_COLOR`. */
   textColor?: RegExp
-  /** Ключ `theme.shape` со скруглением «до круга» (таблетки, аватары). */
+  /** The `theme.shape` key with the "full circle" corner radius (pills, avatars). */
   circleRadius?: string
 }
 

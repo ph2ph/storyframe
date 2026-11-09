@@ -1,11 +1,12 @@
 /*
- * Инварианты выгрузки для Figma: нарушение роняет сборку (код 1), как у набора MCP. Проверяются схема,
- * размер, шрифты, ассеты, матрицы и непривязанные цвета компонентов реестра.
+ * Invariants of the export for Figma: a violation fails the build (exit code 1), as with the MCP set. Checked
+ * are the schema, size, fonts, assets, matrices and unbound colors of registry components.
  */
 
 import { validateBundle } from './schema.mjs'
 
-// Каталог иконок и истории компонентов - десятки мегабайт JSON; плагин читает его из ZIP (единицы мегабайт).
+// The icon catalog and component stories are tens of megabytes of JSON; the plugin reads it from a ZIP
+// (a few megabytes).
 export const MAX_BUNDLE_BYTES = 48 * 1024 * 1024
 
 export function* walkTree(node) {
@@ -18,10 +19,11 @@ function fontAllowed(fonts, family, weight) {
 }
 
 /**
- * @param {object} bundle выгрузка
+ * @param {object} bundle the export
  * @param {{ violation(text: string): void, warning(text: string): void }} report
- * @param {{ unboundExceptions?: Record<string, string>, bytes: number, strictIds?: string[] }} options `strictIds` -
- *   наборы конфигурации: их непривязанные цвета - нарушение; у историй и наборов, найденных в каталоге, - предупреждение
+ * @param {{ unboundExceptions?: Record<string, string>, bytes: number, strictIds?: string[] }} options `strictIds`:
+ *   component sets from the configuration, whose unbound colors are a violation; for stories and component sets
+ *   discovered in the catalog they are a warning
  */
 export function checkBundle(bundle, report, { unboundExceptions = {}, bytes, strictIds = [] }) {
   for (const issue of validateBundle(bundle)) report.violation(`схема выгрузки: ${issue}`)
@@ -55,8 +57,8 @@ export function checkBundle(bundle, report, { unboundExceptions = {}, bytes, str
   for (const key of Object.keys(bundle.assets.svg)) {
     if (!used.has(key)) report.violation(`ассет ${key} не используется`)
   }
-  // Наборы из каталога без реестра могут содержать текст системным шрифтом (ButtonBase без типографики):
-  // плагин возьмёт его из Figma, а каталогу это повод поправить историю.
+  // Component sets from the catalog without a registry entry may contain text in a system font (ButtonBase
+  // without typography): the plugin takes it from Figma, and for the catalog it is a reason to fix the story.
   for (const [key, count] of foreignFonts) {
     const [component, font] = key.split('|')
     report.warning(`${component}: ${count} текстов шрифтом ${font} не из шрифтов темы (набор не из конфигурации)`)
@@ -85,7 +87,7 @@ export function checkBundle(bundle, report, { unboundExceptions = {}, bytes, str
   for (const entry of bundle.report.unboundColors) {
     for (const where of entry.where) {
       const component = where.split(' ')[0]
-      // Истории фреймами - примеры составов, а не матрица компонента: строгая проверка их не касается.
+      // Stories as frames are examples of compositions, not a component matrix: the strict check skips them.
       if (!components.has(component)) continue
       unboundByComponent.set(component, (unboundByComponent.get(component) ?? 0) + 1)
     }

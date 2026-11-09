@@ -5,8 +5,8 @@ import { hashString, maskToSvg, serializeSvg, svgFromMask } from './svg'
 const MASK =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 8'%3E%3Cpath d='M3.5 7L0.2 4'/%3E%3C/svg%3E\")"
 
-describe('SVG для Figma', () => {
-  it('маска из data-URI с вложенными кавычками раскодируется и красится цветом фона', () => {
+describe('SVG for Figma', () => {
+  it('a mask from a data URI with nested quotes is decoded and painted with the background color', () => {
     const markup = svgFromMask(MASK)
     expect(markup).toContain("viewBox='0 0 10 8'")
     const svg = maskToSvg(markup ?? '', 'rgb(242, 81, 61)', 9, 8)
@@ -17,7 +17,7 @@ describe('SVG для Figma', () => {
     expect(svgFromMask('none')).toBeNull()
   })
 
-  it('иконка сериализуется с нейтральным цветом и явными размерами', () => {
+  it('an icon is serialized with a neutral color and explicit sizes', () => {
     const element = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     element.setAttribute('viewBox', '0 0 24 24')
     element.setAttribute('class', 'MuiSvgIcon-root')
@@ -31,7 +31,7 @@ describe('SVG для Figma', () => {
     expect(hashString(markup)).toBe(hashString(markup))
   })
 
-  it('текст из разметки убирается, поворот CSS вписывается группой вокруг центра viewBox', () => {
+  it('text is removed from the markup, the CSS rotation is written in as a group around the viewBox center', () => {
     const element = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     element.setAttribute('viewBox', '0 0 24 24')
     element.innerHTML = '<circle cx="12" cy="12" r="12"/><text x="12" y="12">1</text>'

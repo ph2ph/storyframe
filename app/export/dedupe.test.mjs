@@ -27,15 +27,15 @@ function tree(width, { color = 'palette.primary.main', textX = 16 } = {}) {
   }
 }
 
-describe('склейка одинаковых вариантов', () => {
-  it('сравнивает облик без имён и путей; разная ширина корня - без горизонтальной геометрии', () => {
+describe('merging of indistinguishable variants', () => {
+  it('compares appearance without names and paths; different root width means no horizontal geometry', () => {
     expect(sameLook(tree(1200), { ...tree(1200), name: 'Other', path: '/x' })).toBe(true)
     expect(sameLook(tree(1280), tree(1200, { textX: 20 }))).toBe(true)
     expect(sameLook(tree(1200), tree(1200, { textX: 20 }))).toBe(false)
     expect(sameLook(tree(1280), tree(1200, { color: 'palette.error.main' }))).toBe(false)
   })
 
-  it('склеивает значения, неотличимые от значения по умолчанию, и запоминает двойников', () => {
+  it('merges values indistinguishable from the default value and remembers the twins', () => {
     const variant = (position, color, width) => ({
       variant: { Position: position, Color: color },
       tree: tree(width, { color: `palette.${color}.main` }),
@@ -68,7 +68,7 @@ describe('склейка одинаковых вариантов', () => {
     ])
   })
 
-  it('корни, ширину которых задал сам компонент (Container с maxWidth), сравниваются вместе с шириной', () => {
+  it('roots whose width the component itself set (Container with maxWidth) are compared with their width', () => {
     const component = {
       axes: [{ name: 'MaxWidth', values: ['sm', 'lg'] }],
       variants: [
@@ -80,7 +80,7 @@ describe('склейка одинаковых вариантов', () => {
     expect(component.variants).toHaveLength(2)
   })
 
-  it('если склеились все оси, остаётся State: Figma нужна хотя бы одна', () => {
+  it('if all axes were merged, State stays: Figma needs at least one', () => {
     const component = {
       axes: [
         { name: 'CenterRipple', values: ['false', 'true'] },

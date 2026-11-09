@@ -3,7 +3,7 @@ import { buildTokens, colorName, letterSpacingOf, lineHeightOf, parseGlow } from
 
 const SANS = '"Inter", system-ui, sans-serif'
 
-/** Тема в формате storyframe: по записи каждого вида и пара заведомо неверных значений. */
+/** A theme in storyframe format: one entry of each kind and a couple of deliberately invalid values. */
 function theme(overrides = {}) {
   return {
     fonts: [{ family: 'Inter', weights: [400, 700] }],
@@ -38,8 +38,8 @@ function theme(overrides = {}) {
   }
 }
 
-describe('токены выгрузки из темы storyframe', () => {
-  it('цвета обоих режимов в RGBA 0–1; не цвета - в предупреждения, один режим - в описание', () => {
+describe('export tokens from a storyframe theme', () => {
+  it('colors of both modes in RGBA 0–1; non-colors go to warnings, a single mode goes to the description', () => {
     const { tokens, warnings } = buildTokens(theme())
     const primary = tokens.colors.find((token) => token.id === 'palette.primary.main')
     expect(primary).toMatchObject({ name: 'primary/main', description: 'Действия' })
@@ -54,7 +54,7 @@ describe('токены выгрузки из темы storyframe', () => {
     expect(tokens.colors.find((token) => token.id === 'palette.text.link').description).toBe(
       'Задан только в светлом режиме.',
     )
-    // Без тёмного значения - одно на оба режима, без пометки.
+    // Without a dark value, one value for both modes, with no note.
     const black = tokens.colors.find((token) => token.id === 'palette.common.black')
     expect(black.dark).toEqual(black.light)
     expect(black.description).toBe('')
@@ -63,7 +63,7 @@ describe('токены выгрузки из темы storyframe', () => {
     expect(colorName('tone.red.bg')).toBe('tone/red/bg')
   })
 
-  it('стили текста в единицах Figma, тени без дублей, сверка со шрифтами темы', () => {
+  it('text styles in Figma units, shadows without duplicates, comparison with the theme fonts', () => {
     const { tokens, fonts, warnings } = buildTokens(theme())
     expect(tokens.typography.find((style) => style.id === 'h1')).toMatchObject({
       name: 'Typography/h1',
@@ -91,7 +91,7 @@ describe('токены выгрузки из темы storyframe', () => {
     ])
   })
 
-  it('начертание вне шрифтов темы - предупреждение; роли и свечение полотна переходят в токены', () => {
+  it('a font weight outside the theme fonts is a warning; roles and canvas glow pass into the tokens', () => {
     const glow = 'radial-gradient(100% 100% at 0% 0%, rgba(255,0,0,0.2) 0%, rgba(255,0,0,0) 80%)'
     const { tokens, warnings } = buildTokens(
       theme({
@@ -107,7 +107,7 @@ describe('токены выгрузки из темы storyframe', () => {
     expect(buildTokens(theme()).tokens).not.toHaveProperty('roles')
   })
 
-  it('подсказки адаптера переходят в токены, без пустых ключей', () => {
+  it('adapter hints pass into the tokens, without empty keys', () => {
     const { tokens } = buildTokens(
       theme({
         colors: [
@@ -135,7 +135,7 @@ describe('токены выгрузки из темы storyframe', () => {
     expect(tokens.typography.find((style) => style.id === 'h1')).not.toHaveProperty('code')
   })
 
-  it('интерлиньяж и разрядка CSS', () => {
+  it('CSS line height and letter spacing', () => {
     expect(lineHeightOf('22px')).toEqual({ unit: 'px', value: 22 })
     expect(lineHeightOf(undefined)).toEqual({ unit: 'percent', value: 120 })
     expect(letterSpacingOf('0.01071em')).toEqual({ unit: 'percent', value: 1.07 })
@@ -144,7 +144,7 @@ describe('токены выгрузки из темы storyframe', () => {
 })
 
 describe('parseGlow', () => {
-  it('переводит radial-gradient в центр, радиусы и стопы в долях', () => {
+  it('converts radial-gradient into center, radii and stops as fractions', () => {
     const css =
       'radial-gradient(140% 140% at 0% 0%, rgba(255,166,120,0.14) 0%, rgba(255,255,255,0) 85%), ' +
       'radial-gradient(120% 120% at 100% 0%, rgba(255, 172, 128, 0.07) 0%, rgba(255,255,255,0) 70%)'

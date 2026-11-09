@@ -1,8 +1,8 @@
 /*
- * ZIP без зависимостей: `kit.zip` рядом с `kit.json`; точка входа `@ph2ph/storyframe/zip` отдаёт писатель
- * плагину Figma для архива сборки. Только то, что нужно писателю - локальные заголовки, central directory и
- * EOCD, сжатие deflate (`node:zlib`). Читает такой архив окно плагина (`ui/zip.ts`) через
- * `DecompressionStream('deflate-raw')`.
+ * ZIP without dependencies: `kit.zip` next to `kit.json`; the `@ph2ph/storyframe/zip` entry point hands the
+ * writer to the Figma plugin for the build archive. Only what the writer needs: local headers, the central
+ * directory and EOCD, deflate compression (`node:zlib`). The plugin window (`ui/zip.ts`) reads such an archive
+ * through `DecompressionStream('deflate-raw')`.
  */
 
 import { crc32, deflateRawSync } from 'node:zlib'
@@ -15,9 +15,9 @@ const FLAG_UTF8 = 0x0800
 const METHOD_DEFLATE = 8
 const METHOD_STORE = 0
 
-/** Дата и время MS-DOS: секунды делятся на два, год от 1980. */
+/** MS-DOS date and time: seconds are halved, the year counts from 1980. */
 function dosDateTime(input) {
-  // Раньше 1980 года формат не умеет: такие даты (например, `new Date(0)`) записываются первым днём 1980.
+  // The format cannot go before 1980: such dates (for example `new Date(0)`) are written as the first day of 1980.
   const date = input.getUTCFullYear() < 1980 ? new Date(Date.UTC(1980, 0, 1)) : input
   const time = (date.getUTCHours() << 11) | (date.getUTCMinutes() << 5) | (date.getUTCSeconds() >> 1)
   const day = ((date.getUTCFullYear() - 1980) << 9) | ((date.getUTCMonth() + 1) << 5) | date.getUTCDate()
@@ -25,7 +25,7 @@ function dosDateTime(input) {
 }
 
 /**
- * Собирает ZIP из списка файлов.
+ * Builds a ZIP from a list of files.
  * @param {{ name: string, data: Uint8Array | string, date?: Date }[]} files
  * @returns {Buffer}
  */

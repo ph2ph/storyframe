@@ -1,16 +1,17 @@
 /*
- * Адаптер темы MUI: тема в формате storyframe из пары тем `createTheme` (светлой и тёмной). Цвета - листья
- * `palette`, числа - `shape` и шаги `spacing`, стили текста - варианты `typography`, тени - `shadows`. Знания
- * о соглашениях MUI (как токен пишут в коде, группы и приоритеты цветов палитры, цвета текста) живут здесь, а
- * не в ядре. Всё, что у проектов разное (имена скруглений и теней, дополнительные стили текста, свечение
- * полотна, описания, шрифты, расширения палитры), задаётся опциями. Модуль без зависимостей: он работает и в
- * Node, и в Vite проекта.
+ * MUI theme adapter: a theme in the storyframe format from a pair of `createTheme` themes (light and dark).
+ * Colors are the `palette` leaves, numbers are `shape` and the `spacing` steps, text styles are the `typography`
+ * variants, shadows are `shadows`. Knowledge of the MUI conventions (how a token is written in code, groups and
+ * priorities of palette colors, text colors) lives here, not in the core. Everything that differs between
+ * projects (names of radii and shadows, extra text styles, canvas glow, descriptions, fonts, palette
+ * extensions) is set through options. The module has no dependencies: it works both in Node and in the
+ * project's Vite.
  */
 
-/** Шаги `theme.spacing(n)`, которые идут переменными отступов. */
+/** `theme.spacing(n)` steps that become spacing variables. */
 const SPACING_STEPS = [0.5, 1, 1.5, 2, 3, 4, 6, 8]
 
-/** Роли оформления плагина - адреса темы MUI: полотно, текст трёх уровней, разделитель, стили подписей. */
+/** Plugin decoration roles as MUI theme paths: canvas, text of three levels, divider, label styles. */
 export const MUI_ROLES = {
   canvas: 'palette.background.default',
   text: 'palette.text.primary',
@@ -25,9 +26,9 @@ export const MUI_ROLES = {
 }
 
 /**
- * Приоритеты цветов MUI по роли краски: среди токенов с одинаковыми значениями побеждает адрес, подошедший
- * к шаблону раньше (заливка - фон, затем `main`; текст - `palette.text`, затем `contrastText`). Палитра с
- * расширениями передаёт свои списки опцией `colorPriority`.
+ * MUI color priorities per paint role: among tokens with the same values the path that matched a pattern
+ * earlier wins (fill: background, then `main`; text: `palette.text`, then `contrastText`). A palette with
+ * extensions passes its own lists through the `colorPriority` option.
  */
 export const MUI_COLOR_PRIORITY = {
   fill: [/^palette\.background\./, /\.main$/, /\.light$/, /^palette\.action\./],
@@ -35,10 +36,10 @@ export const MUI_COLOR_PRIORITY = {
   stroke: [/^palette\.divider$/, /^palette\.grey\./, /\.main$/, /\.light$/],
 }
 
-/** Цвета текста MUI: `palette.text.*` и `*.contrastText`. */
+/** MUI text colors: `palette.text.*` and `*.contrastText`. */
 export const MUI_TEXT_COLOR = /^palette\.(text\.|.*\.contrastText$)/
 
-/** Номер первого подходящего шаблона по каждой роли; роли без совпадения не пишутся. */
+/** Index of the first matching pattern for each role; roles without a match are not written. */
 function priorityOf(address, lists) {
   const priority = {}
   for (const [role, patterns] of Object.entries(lists)) {
@@ -56,7 +57,7 @@ function leaves(value, address, out) {
   return out
 }
 
-/** Строковые листья палитры (`palette.primary.main` → значение); `mode` и функции пропускаются. */
+/** String leaves of the palette (`palette.primary.main` → value); `mode` and functions are skipped. */
 function paletteLeaves(theme) {
   const out = new Map()
   for (const [key, value] of Object.entries(theme.palette ?? {}))
@@ -68,7 +69,7 @@ function valueAt(theme, address) {
   return address.split('.').reduce((value, key) => (value && typeof value === 'object' ? value[key] : undefined), theme)
 }
 
-/** Кегль варианта в px: `rem` - от `htmlFontSize`, `px` и число - как есть. */
+/** Variant font size in px: `rem` is relative to `htmlFontSize`, `px` and a number are taken as is. */
 function fontSizePx(size, htmlFontSize) {
   if (typeof size === 'number') return size
   if (typeof size !== 'string') return null
@@ -99,12 +100,12 @@ export function muiTheme(options) {
     return {
       id: address,
       name: address.replace(/^palette\./, '').replaceAll('.', '/'),
-      // Листа нет в теме режима - цвет в нём не задан.
+      // The leaf is absent from the mode's theme, so the color is not set in it.
       light: lightColors.get(address) ?? null,
       dark: darkColors.get(address) ?? null,
       description: describe(address) || '',
       code: `theme.${address}`,
-      // Группа - ключ палитры: подпись к фону `primary.main` берёт `primary.contrastText`.
+      // The group is the palette key: a label on a `primary.main` background takes `primary.contrastText`.
       group: address.split('.')[1] ?? '',
       ...(priority ? { priority } : {}),
       text: textColor.test(address),
@@ -133,7 +134,7 @@ export function muiTheme(options) {
     })
   }
   for (const step of options.spacing ?? SPACING_STEPS) {
-    // В имени переменной Figma точка недопустима: `spacing/0_5`.
+    // A dot is not allowed in a Figma variable name: `spacing/0_5`.
     numbers.push({
       id: `spacing.${step}`,
       name: `spacing/${String(step).replace('.', '_')}`,
@@ -195,7 +196,7 @@ export function muiTheme(options) {
     return undefined
   }
 
-  // Шрифты по умолчанию - семейства и начертания стилей текста темы.
+  // The default fonts are the families and weights of the theme's text styles.
   const fonts =
     options.fonts ??
     [...new Set(typography.map((style) => firstFamily(style.fontFamily)))].map((family) => ({

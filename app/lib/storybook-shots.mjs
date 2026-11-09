@@ -1,8 +1,8 @@
 /*
- * Съёмка историй статической сборки Storybook headless-Chrome'ом по CDP: статический сервер,
- * браузер, вкладка с замороженными анимациями и ожидание отрисовки истории. Общая часть
- * `scripts/datatable-shots.mjs` (снимки DataTable для сверки с эталоном) и `scripts/mcp/shots.mjs`
- * (снимки историй для набора MCP).
+ * Capturing stories of the Storybook static build with headless Chrome over CDP: a static server, the
+ * browser, a tab with frozen animations and waiting for the story to render. The shared part of
+ * `scripts/datatable-shots.mjs` (DataTable screenshots for comparison with the reference) and
+ * `scripts/mcp/shots.mjs` (story screenshots for the MCP set).
  */
 
 import { spawn } from 'node:child_process'
@@ -23,7 +23,7 @@ const MIME_TYPES = {
   '.woff2': 'font/woff2',
 }
 
-/** Статический сервер над каталогом сборки на свободном порту `127.0.0.1`. */
+/** A static server over the build directory on a free `127.0.0.1` port. */
 export function serveStatic(dir) {
   const server = createServer((request, response) => {
     const file = path.join(dir, decodeURIComponent(new URL(request.url, 'http://localhost').pathname))
@@ -106,16 +106,16 @@ function connect(chrome) {
 }
 
 /**
- * Headless Chrome с управлением по CDP через pipe. `close` закрывает его командой CDP и ждёт выхода:
- * после SIGTERM Chrome ещё пишет в каталог профиля, и удаление каталога падает с ENOTEMPTY.
+ * Headless Chrome driven over CDP through a pipe. `close` shuts it down with a CDP command and waits for exit:
+ * after SIGTERM Chrome keeps writing to the profile directory, and removing the directory fails with ENOTEMPTY.
  */
 export function launchChrome(profileDir, { hover = false } = {}) {
   const chrome = spawn(
     process.env.CHROME ?? 'google-chrome',
     [
       '--headless',
-      // Headless Chrome считает устройство без hover, и MUI гасит `:hover` под `@media (hover: none)`;
-      // выгрузке для Figma нужны состояния наведения, снимкам набора MCP - нет.
+      // Headless Chrome reports a device without hover, and MUI disables `:hover` under `@media (hover: none)`;
+      // the export for Figma needs hover states, the MCP set screenshots do not.
       ...(hover
         ? ['--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4']
         : []),
@@ -128,16 +128,16 @@ export function launchChrome(profileDir, { hover = false } = {}) {
       '--disable-extensions',
       '--disable-sync',
       '--force-color-profile=srgb',
-      // С частичной растеризацией (по умолчанию) снимки открытых окон различаются от съёмки к съёмке:
-      // пиксели у краёв кнопок отличаются на 1–2 уровня цвета.
+      // With partial raster (the default) screenshots of open windows differ from capture to capture:
+      // pixels at button edges differ by 1–2 color levels.
       '--disable-partial-raster',
       '--mute-audio',
-      // Сборка в TeamCity идёт в контейнере от root: песочницу Chrome от root не запускает, а /dev/shm
-      // контейнера (64 МБ) мал для четырёх вкладок съёмки.
+      // The TeamCity build runs in a container as root: Chrome does not start its sandbox as root, and the
+      // container's /dev/shm (64 MB) is too small for four capture tabs.
       ...(process.getuid?.() === 0 ? ['--no-sandbox', '--disable-dev-shm-usage'] : []),
     ],
-    // Своя группа процессов: SIGINT от Ctrl+C в терминале браузер не получает, и `close` закрывает его
-    // командой CDP.
+    // Own process group: the browser does not receive SIGINT from Ctrl+C in the terminal, and `close` shuts it
+    // down with a CDP command.
     { detached: true, stdio: ['ignore', 'ignore', 'pipe', 'pipe', 'pipe'] },
   )
   const cdp = connect(chrome)
@@ -169,9 +169,8 @@ function freezeAnimations(win) {
 }
 
 /**
- * Вкладка заданного размера с замороженными анимациями. Несколько вкладок одного браузера снимают
- * только с `newWindow`: невидимая вкладка не получает кадров, и `requestAnimationFrame` в ней не
- * срабатывает.
+ * A tab of the given size with frozen animations. Several tabs of one browser capture only with
+ * `newWindow`: a hidden tab receives no frames, and `requestAnimationFrame` in it never fires.
  */
 export async function openTab(cdp, viewport, { newWindow = false } = {}) {
   const { targetId } = await cdp.send('Target.createTarget', { url: 'about:blank', newWindow })
@@ -192,14 +191,14 @@ async function settle(win, timeoutMs, quietMs) {
     }
   }
 
-  // Фаза `finished` наступает и после ошибки рендера, и после завершения `play`.
+  // The `finished` phase comes both after a render error and after `play` completes.
   await waitFor(() => win.__STORYBOOK_PREVIEW__?.currentRender?.phase === 'finished', 'рендер истории')
   if (win.document.body.classList.contains('sb-show-errordisplay')) {
     throw new Error(win.document.getElementById('error-message')?.textContent || 'ошибка рендера истории')
   }
 
-  // Грид и окна перестраиваются после замера контейнера и после загрузки шрифтов, то есть уже после
-  // фазы `finished`.
+  // The grid and windows re-layout after measuring the container and after fonts load, that is, already after
+  // the `finished` phase.
   let lastMutation = 0
   const observer = new win.MutationObserver(() => {
     lastMutation = Date.now()
@@ -210,10 +209,10 @@ async function settle(win, timeoutMs, quietMs) {
     return waitFor(() => Date.now() - lastMutation >= quietMs, what)
   }
   await waitQuiet('паузы в изменениях DOM')
-  // Начертание грузится, когда текст с ним впервые проходит раскладку, а headless Chrome раскладывает лениво:
-  // `fonts.ready` выполнялся до запроса начертания, и текст снимался с метриками запасного шрифта (полужирные
-  // подписи, моноширинные цифры) - в зависимости от того, какие истории вкладка открывала раньше. Поэтому
-  // сразу грузятся все начертания, объявленные на странице.
+  // A font face loads when text using it first goes through layout, and headless Chrome lays out lazily:
+  // `fonts.ready` resolved before the face was requested, and the text was captured with fallback font metrics
+  // (bold labels, monospaced digits), depending on which stories the tab had opened before. So all font faces
+  // declared on the page are loaded right away.
   await Promise.allSettled([...win.document.fonts].map((face) => face.load()))
   await win.document.fonts.ready
   await waitQuiet('паузы в изменениях DOM после загрузки шрифтов')
@@ -226,7 +225,7 @@ async function settle(win, timeoutMs, quietMs) {
   ])
 }
 
-/** Выполняет функцию `(win, ...args)` во вкладке; исключение во вкладке — ошибка с подписью `label`. */
+/** Runs the function `(win, ...args)` in the tab; an exception in the tab becomes an error labeled `label`. */
 export async function evaluate(tab, fn, args, label) {
   const { result, exceptionDetails } = await tab.send('Runtime.evaluate', {
     expression: `(${fn})(window${args.map((arg) => `, ${JSON.stringify(arg)}`).join('')})`,
@@ -240,8 +239,8 @@ export async function evaluate(tab, fn, args, label) {
 }
 
 /**
- * Открывает историю статической сборки и ждёт, пока она отрисуется и затихнет: фаза `finished`
- * (после `play`), пауза в DOM, шрифты, два кадра.
+ * Opens a story of the static build and waits until it renders and settles: the `finished` phase
+ * (after `play`), a pause in the DOM, fonts, two frames.
  */
 export async function openStory(cdp, tab, origin, storyId, mode, label) {
   const loaded = cdp.once('Page.loadEventFired', tab.sessionId)

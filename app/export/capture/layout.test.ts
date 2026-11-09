@@ -36,19 +36,19 @@ const style = (overrides: Record<string, string>) =>
     ...overrides,
   }) as unknown as CSSStyleDeclaration
 
-describe('промежутки раскладки', () => {
-  it('равные промежутки дают gap, расхождение до 1 px терпится', () => {
+describe('layout gaps', () => {
+  it('equal gaps give a gap, a deviation of up to 1 px is tolerated', () => {
     expect(uniformGap([box(0, 0, 10, 10), box(0, 18, 10, 10), box(0, 36.8, 10, 10)], false)).toBe(8)
     expect(gapsVary([box(0, 0, 10, 10), box(0, 18, 10, 10)], false)).toBe(false)
   })
 
-  it('разные промежутки (поля у детей) оставляют контейнер без раскладки', () => {
+  it('differing gaps (margins on children) leave the container without a layout', () => {
     const boxes = [box(0, 0, 100, 19), box(0, 50, 100, 44), box(0, 122, 100, 63), box(0, 213, 100, 45)]
     expect(gapsVary(boxes, false)).toBe(true)
     expect(flexLayout(style({}), boxes)).toEqual({ mode: 'none' })
   })
 
-  it('переносимый ряд не меряет промежутки и помечается wrap', () => {
+  it('a wrapping row does not measure gaps and is marked wrap', () => {
     const layout = flexLayout(style({ flexDirection: 'row', flexWrap: 'wrap', columnGap: '16px' }), [
       box(0, 0, 200, 40),
       box(216, 0, 200, 40),
@@ -57,8 +57,8 @@ describe('промежутки раскладки', () => {
     expect(layout).toMatchObject({ mode: 'row', gap: 16, wrap: true })
   })
 
-  it('переносимый ряд, заполненный впритык, выгружается без переноса', () => {
-    // Фильтры панели DataTable: два поля и чекбокс впритык к ширине ряда.
+  it('a wrapping row filled edge to edge is exported without wrapping', () => {
+    // DataTable toolbar filters: two fields and a checkbox filling the row width edge to edge.
     const layout = flexLayout(
       style({ flexDirection: 'row', flexWrap: 'wrap', columnGap: '16px', rowGap: '16px' }),
       [box(0, 0, 170, 50.41), box(186, 0, 150, 50.41), box(352, 19.41, 140.47, 31)],
@@ -74,8 +74,8 @@ describe('промежутки раскладки', () => {
     })
   })
 
-  it('переносимый ряд со свободным местом сохраняет перенос, даже в одну строку', () => {
-    // Панель DataTable: фильтры слева, действия справа, между ними - свободное место ширины таблицы.
+  it('a wrapping row with free space keeps wrapping, even on a single line', () => {
+    // DataTable toolbar: filters on the left, actions on the right, free space of the table width between them.
     const layout = flexLayout(
       style({
         flexDirection: 'row',
@@ -90,7 +90,7 @@ describe('промежутки раскладки', () => {
     expect(layout).toMatchObject({ mode: 'row', justify: 'space-between', wrap: true, crossGap: 16 })
   })
 
-  it('поле первого ребёнка уходит в padding, несимметричный центр - к началу', () => {
+  it('the first child margin goes into padding, an asymmetric center goes to the start', () => {
     const chip = absorbOffsets(flow('row', [4, 6, 4, 6], 'center', 'center'), [box(11, 10, 6, 6), box(17, 4, 35, 18)], {
       w: 58,
       h: 26,
@@ -103,7 +103,7 @@ describe('промежутки раскладки', () => {
     })
   })
 
-  it('разные поперечные отступы детей оставляют контейнер без раскладки', () => {
+  it('differing cross-axis offsets of children leave the container without a layout', () => {
     expect(
       absorbOffsets(flow('column', [0, 0, 0, 0], 'min', 'min'), [box(0, 0, 100, 34), box(9, 34, 90, 20)], {
         w: 100,
@@ -112,8 +112,8 @@ describe('промежутки раскладки', () => {
     ).toEqual({ mode: 'none' })
   })
 
-  it('содержимое, не умещённое в отступы CSS, задаёт отступы геометрией; за краем бокса - без раскладки', () => {
-    // Вертикальная вкладка fullWidth: бокс 24 px при отступах 12 + 12, текст 19 px выходит в поля.
+  it('content not fitting the CSS padding sets padding by geometry; beyond the box edge, no layout', () => {
+    // Vertical fullWidth tab: a 24 px box with 12 + 12 padding, the 19 px text spills into the padding.
     const squeezed = absorbOffsets(flow('row', [12, 14, 12, 14], 'min', 'center'), [box(14, 2.25, 51, 19)], {
       w: 1183,
       h: 24,
@@ -124,7 +124,7 @@ describe('промежутки раскладки', () => {
     })
   })
 
-  it('переносимый ряд меряет промежуток в строке и между строками по геометрии (Stack с полями)', () => {
+  it('a wrapping row measures the gap within a line and between lines by geometry (Stack with margins)', () => {
     const boxes = [box(0, 0, 56, 80), box(68, 0, 56, 80), box(136, 0, 56, 80), box(0, 100, 56, 80)]
     expect(wrapGaps(boxes, true)).toEqual({ main: 12, cross: 20 })
     expect(
@@ -132,7 +132,7 @@ describe('промежутки раскладки', () => {
     ).toMatchObject({ mode: 'row', gap: 12, crossGap: 20, wrap: true })
   })
 
-  it('stretch не тянет ребёнка со своим размером по поперечной оси (иконка 22×22 в колонке Alert)', () => {
+  it('stretch does not pull a child with its own cross-axis size (a 22×22 icon in the Alert column)', () => {
     const icon = flow('row', [7, 0, 7, 0], 'min', 'stretch')
     expect(unstretched(icon, [box(0, 7, 22, 22)], { w: 22, h: 60 })).toEqual([true])
     expect(unstretched(icon, [box(0, 7, 22, 46)], { w: 22, h: 60 })).toEqual([false])
@@ -141,7 +141,7 @@ describe('промежутки раскладки', () => {
     ])
   })
 
-  it('переносимый ряд с разными промежутками в строке остаётся без раскладки, а не сжимается до gap из CSS', () => {
+  it('a wrapping row with differing gaps in a line is left without a layout, not squeezed to the CSS gap', () => {
     const boxes = [box(0, 0, 58, 17), box(100, 0, 80, 32), box(192, 0, 80, 32)]
     expect(
       flexLayout(style({ flexDirection: 'row', flexWrap: 'wrap', columnGap: '0px', rowGap: '0px' }), boxes),

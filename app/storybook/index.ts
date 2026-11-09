@@ -1,7 +1,7 @@
 /*
- * Точка входа `@ph2ph/storyframe/storybook`: блок «Варианты» для страниц документации Storybook и страница
- * документации с ним. Нужны `@storybook/addon-docs`, `@storybook/react-vite` и аддон
- * `storybook-addon-pseudo-states` (наведение и фокус в ячейках).
+ * Entry point of `@ph2ph/storyframe/storybook`: the Variants block for Storybook docs pages and a docs page
+ * with it. Requires `@storybook/addon-docs`, `@storybook/react-vite` and the `storybook-addon-pseudo-states`
+ * addon (hover and focus in the cells).
  */
 
 export { isVariantsCell } from './cell'

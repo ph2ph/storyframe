@@ -1,7 +1,7 @@
 /*
- * Рантайм-схема выгрузки для Figma (valibot) - зеркало типов `capture/types.ts`. Сборщик проверяет ею
- * `kit.json` перед записью; плагин проверяет только версию схемы и верхний уровень, чтобы не тащить
- * схему в бандл.
+ * Runtime schema of the export for Figma (valibot), a mirror of the `capture/types.ts` types. The builder checks
+ * `kit.json` with it before writing; the plugin checks only the schema version and the top level so as not to
+ * drag the schema into its own bundle.
  */
 
 import * as v from 'valibot'
@@ -80,7 +80,7 @@ const textStyleValues = v.object({
   align: v.picklist(['left', 'center', 'right']),
 })
 
-// Рекурсия дерева: `lazy` ссылается на схему узла, объявленную ниже.
+// Tree recursion: `lazy` refers to the node schema declared below.
 const layerNode = v.lazy(() =>
   v.variant('type', [
     v.object({
@@ -242,7 +242,7 @@ export const bundleSchema = v.object({
   }),
 })
 
-/** Пустая выгрузка без токенов и компонентов - основа для тестов и фикстур. */
+/** An empty export without tokens and components, the base for tests and fixtures. */
 export function emptyBundle(version = '0.0.0') {
   return {
     schema: SCHEMA_VERSION,
@@ -259,8 +259,8 @@ export function emptyBundle(version = '0.0.0') {
 }
 
 /**
- * Проверяет выгрузку схемой. Возвращает список нарушений (пустой - выгрузка верна); путь к полю - через
- * точку, как в сообщениях сборщика.
+ * Validates the export against the schema. Returns the list of violations (empty means the export is valid);
+ * the field path is dot-separated, as in the builder's messages.
  * @param {unknown} bundle
  * @returns {string[]}
  */

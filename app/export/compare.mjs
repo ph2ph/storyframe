@@ -1,8 +1,9 @@
 /*
- * Сверка снимков: эталоны историй из браузера (`storyframe export --shots`) против экспорта вариантов из
- * Figma (приёмник `storyframe shots-server` + кнопка «Отправить снимки» в плагине) или эмуляции плагина
- * (`storyframe emulate`). Обе стороны - PNG в масштабе 2; сравнение идёт на белом фоне по пересечению,
- * разница в размере считается отдельно. Папки по умолчанию - в `<workDir>/shots/`.
+ * Screenshot comparison: story references from the browser (`storyframe export --shots`) against the variants
+ * exported from Figma (the `storyframe shots-server` receiver plus the "Send screenshots" button in the plugin)
+ * or the plugin emulation (`storyframe emulate`). Both sides are PNG at scale 2; the comparison runs on a white
+ * background over the intersection, the size difference is counted separately. Default folders are in
+ * `<workDir>/shots/`.
  *
  *   storyframe compare [--storybook dir] [--figma dir] [--out dir] [--top 20] [--threshold 24]
  */
@@ -23,7 +24,7 @@ async function listPngs(root, prefix = '') {
   return result
 }
 
-/** Пиксель поверх белого: у экспорта Figma фон прозрачный, у браузерного снимка - белый. */
+/** A pixel over white: the Figma export has a transparent background, the browser screenshot a white one. */
 function overWhite(data, index) {
   const alpha = data[index + 3] / 255
   return [
@@ -35,7 +36,7 @@ function overWhite(data, index) {
 
 /**
  * @returns {{ mismatch: number, sizeDelta: [number, number], diff: { width: number, height: number, data: Uint8Array } }}
- * `mismatch` - доля пикселей пересечения, отличающихся сильнее порога по любому каналу.
+ * `mismatch` is the share of intersection pixels that differ by more than the threshold in any channel.
  */
 export function compareImages(reference, candidate, threshold = 24) {
   const width = Math.max(reference.width, candidate.width)
@@ -74,7 +75,7 @@ export function compareImages(reference, candidate, threshold = 24) {
   }
 }
 
-/** Три картинки рядом: эталон, Figma, разница; все - поверх белого, высота по большей. */
+/** Three images side by side: reference, Figma, difference; all over white, height by the tallest. */
 export function triptych(reference, candidate, diff) {
   const gap = 8
   const height = Math.max(reference.height, candidate.height, diff.height)
@@ -95,12 +96,13 @@ export function triptych(reference, candidate, diff) {
 }
 
 /**
- * Предел сверки на картинку: эталон, снимок, разница и триптих каталога иконок высотой 174 тысячи пикселей в
- * масштабе 2 занимали гигабайты памяти и роняли машину без swap. Такие пары пропускаются с пометкой.
+ * Comparison limit per image: the reference, screenshot, difference and triptych of the icon catalog, 174
+ * thousand pixels tall at scale 2, took gigabytes of memory and crashed a machine without swap. Such pairs are
+ * skipped with a note.
  */
 export const MAX_PIXELS = 16_000_000
 
-/** Ширина и высота PNG из заголовка IHDR, без распаковки. */
+/** PNG width and height from the IHDR header, without decoding. */
 export function pngSize(buffer) {
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) }
 }
@@ -124,7 +126,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
     out: path.resolve(root, raw.out),
   }
   const threshold = Number(values.threshold)
-  // Триптихи прошлой сверки с исправленными с тех пор вариантами путали бы картину.
+  // Triptychs of the previous comparison with variants fixed since then would muddle the picture.
   await rm(values.out, { recursive: true, force: true })
   const references = await listPngs(values.storybook)
   const rows = []

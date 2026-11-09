@@ -1,8 +1,9 @@
 /*
- * Тема проекта для выгрузки. Модуль из `theme` конфигурации (`storyframe.config.mjs`) отдаёт тему в формате
- * storyframe экспортом по умолчанию - объектом или функцией (можно асинхронной). Модуль грузится через
- * Vite SSR в корне проекта: так работают TypeScript, JSX и `import.meta.glob` исходников темы без отдельной
- * сборки. Для темы MUI формат строит адаптер `@ph2ph/storyframe/mui`.
+ * The project theme for the export. The module from the configuration's `theme` field (`storyframe.config.mjs`)
+ * returns the theme in storyframe format as the default export, an object or a function (possibly async). The
+ * module is loaded through Vite SSR in the project root: that way TypeScript, JSX and `import.meta.glob` in
+ * the theme sources work without a separate build. For a MUI theme the format is built by the
+ * `@ph2ph/storyframe/mui` adapter.
  */
 
 import path from 'node:path'
@@ -73,11 +74,11 @@ const themeSchema = v.object({
   roles: v.optional(v.record(v.string(), v.string())),
 })
 
-/** Пустая тема: проект без модуля темы выгружает каталог без переменных и стилей. */
+/** Empty theme: a project without a theme module exports the catalog without variables and styles. */
 export const EMPTY_THEME = { fonts: [], colors: [], numbers: [], typography: [], shadows: [] }
 
 /**
- * Проверяет тему схемой; нарушения - список «путь: сообщение».
+ * Validates the theme against the schema; violations are a list of "path: message" entries.
  * @returns {string[]}
  */
 export function validateTheme(theme) {
@@ -87,8 +88,8 @@ export function validateTheme(theme) {
 }
 
 /**
- * Тема проекта из модуля `file` (путь от корня проекта); без модуля - пустая тема.
- * @param {string} root корень проекта
+ * The project theme from the module `file` (path from the project root); without a module, the empty theme.
+ * @param {string} root project root
  * @param {string | null} file
  * @returns {Promise<IStoryframeTheme>}
  */

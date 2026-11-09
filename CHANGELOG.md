@@ -1,24 +1,25 @@
 # Changelog
 
-## 0.1.0 - не выпущено
+## 0.1.0, unreleased
 
-Первая версия отдельным пакетом. Выгрузка и блок «Варианты» выделены из UI-кита @a1s/react-ui (там они
-жили в `scripts/figma` и `.storybook/variants.tsx`) и отвязаны от него. Плагин Figma живёт в отдельном
-репозитории `storyframe-plugin` и берёт формат выгрузки из этого пакета.
+First version as a separate package. The export and the Variants block are extracted from the @a1s/react-ui UI kit
+(there they lived in `scripts/figma` and `.storybook/variants.tsx`) and decoupled from it. The Figma plugin lives
+in a separate repository, `storyframe-plugin`, and takes the export format from this package.
 
-- Пакет публикуется в npmjs под именем `@ph2ph/storyframe`, команда CLI называется `storyframe`. Лицензия MIT.
+- The package is published on npmjs as `@ph2ph/storyframe`, the CLI command is called `storyframe`. MIT license.
 - CLI `storyframe`: `export`, `serve`, `shots-server`, `compare`, `emulate`.
-  Команда работает в папке проекта; пути (`storybook`, `out`, `workDir`) - из конфигурации.
-- Конфигурация `storyframe.config.ts` или `.mjs`, помощник `defineConfig` из `storyframe/config`.
-- Тема проекта в нейтральном формате (`IStoryframeTheme`) из модуля `theme` конфигурации, загрузка через
-  Vite SSR; адаптер `storyframe/mui` строит её из тем `createTheme`.
-- Роли оформления плагина в теме: фон папок, подписи и рамки документации плагин красит токенами темы, а не
-  цветами и шрифтами кита.
-- Точки входа для плагина: `./format` (формат выгрузки), `./variants` (подписи матрицы), `./zip` (писатель ZIP).
-- Блок «Варианты»: `createDocsPage(config)`, `Variants`, параметр ячейки `storyframe.cell`
+  The command runs in the project folder; the paths (`storybook`, `out`, `workDir`) come from the configuration.
+- Configuration `storyframe.config.ts` or `.mjs`, the `defineConfig` helper from `@ph2ph/storyframe/config`.
+- The project theme in a neutral format (`IStoryframeTheme`) from the `theme` module of the configuration, loaded
+  through Vite SSR; the `@ph2ph/storyframe/mui` adapter builds it from `createTheme` themes.
+- Plugin decoration roles in the theme: the plugin paints folder backgrounds, labels and documentation frames with
+  theme tokens, not with the kit colors and fonts.
+- Entry points for the plugin: `./format` (export format), `./variants` (matrix labels), `./zip` (ZIP writer).
+- The Variants block: `createDocsPage(config)`, `Variants`, the cell parameter `storyframe.cell`
   (`isVariantsCell`).
-- Соглашения проекта о токенах - в теме, а не в ядре: поля `code`, `group`, `priority`, `text` (цвета) и
-  `circle` (скругления); адаптер MUI заполняет их сам и принимает `colorPriority`, `textColor`,
-  `circleRadius` для палитр с расширениями. Предпроверка плагина предупреждает о выгрузке без этих подсказок.
-- Съёмка грузит все начертания страницы до замера текста: метрики больше не зависят от порядка историй во
-  вкладке.
+- Project token conventions live in the theme, not in the core: the fields `code`, `group`, `priority`, `text`
+  (colors) and `circle` (corner radii); the MUI adapter fills them itself and accepts `colorPriority`, `textColor`,
+  `circleRadius` for palettes with extensions. The plugin preflight check warns about an export without these
+  hints.
+- Capture loads all font faces of the page before measuring text: the metrics no longer depend on the order of
+  stories in a tab.

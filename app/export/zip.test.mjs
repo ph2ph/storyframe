@@ -2,7 +2,7 @@ import { inflateRawSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { createZip } from './zip.mjs'
 
-/** Читает архив по central directory - так же, как интерфейс плагина. */
+/** Reads the archive via the central directory, the same way the plugin UI does. */
 function readZip(buffer) {
   const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength)
   let eocd = buffer.length - 22
@@ -26,8 +26,8 @@ function readZip(buffer) {
   return files
 }
 
-describe('ZIP-писатель', () => {
-  it('архив читается обратно: сжатый текст и короткий файл без сжатия', () => {
+describe('ZIP writer', () => {
+  it('the archive reads back: compressed text and a short file stored uncompressed', () => {
     const json = JSON.stringify({ kit: 'storyframe'.repeat(80) })
     const zip = createZip([
       { name: 'kit.json', data: json, date: new Date(Date.UTC(2026, 9, 31, 12, 30, 0)) },
@@ -40,7 +40,7 @@ describe('ZIP-писатель', () => {
     expect(zip.length).toBeLessThan(json.length)
   })
 
-  it('читается DecompressionStream, как в интерфейсе плагина', async () => {
+  it('is read by DecompressionStream, as in the plugin UI', async () => {
     const zip = createZip([{ name: 'kit.json', data: 'ab'.repeat(500) }])
     const view = new DataView(zip.buffer, zip.byteOffset, zip.byteLength)
     const size = view.getUint32(18, true)

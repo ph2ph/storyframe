@@ -1,16 +1,17 @@
 /*
- * Пути проекта и пакета. Проект - папка, из которой запущена команда (там конфигурация, сборка Storybook и
- * рабочая папка); пакет - сам storyframe (конвертер DOM для внедрения в страницу Storybook).
+ * Project and package paths. The project is the folder the command is run from (it holds the configuration,
+ * the Storybook static build and the work folder); the package is storyframe itself (the DOM converter injected
+ * into the Storybook page).
  */
 
 import path from 'node:path'
 import { loadConfig } from './config.mjs'
 
-/** Корень пакета storyframe. */
+/** Root of the storyframe package. */
 export const PACKAGE_ROOT = path.resolve(import.meta.dirname, '../..')
 
 /**
- * @param {string} root корень проекта
+ * @param {string} root project root
  * @param {import('./catalog.mjs').TConfig} config
  */
 export function projectPaths(root, config) {
@@ -18,12 +19,12 @@ export function projectPaths(root, config) {
   const work = path.resolve(root, config.workDir)
   return {
     root,
-    /** Статическая сборка Storybook. */
+    /** Storybook static build. */
     storybook,
-    /** Выгрузка: `kit.json`, `kit.zip`, `index.json`. */
+    /** The export: `kit.json`, `kit.zip`, `index.json`. */
     out: config.out ? path.resolve(root, config.out) : path.join(storybook, 'figma-data'),
     work,
-    /** Снимки для сверки: эталоны из браузера, снимки из Figma, эмуляция плагина и триптихи разницы. */
+    /** Screenshots for comparison: browser references, Figma screenshots, plugin emulation and diff triptychs. */
     shots: {
       storybook: path.join(work, 'shots/storybook'),
       figma: path.join(work, 'shots/figma'),
@@ -33,7 +34,7 @@ export function projectPaths(root, config) {
   }
 }
 
-/** Конфигурация и пути проекта из папки `root`. */
+/** Project configuration and paths from the `root` folder. */
 export async function loadProject(root = process.cwd()) {
   const config = await loadConfig(root)
   return { config, paths: projectPaths(root, config) }

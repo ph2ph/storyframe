@@ -1,6 +1,6 @@
 /**
- * Отчёт сборщика набора: нарушение роняет сборку с кодом 1, предупреждение — пункт списка работ
- * по каталогу, сборку оно не останавливает.
+ * Report of the component set builder: a violation fails the build with exit code 1, a warning is an item on
+ * the catalog's to-do list and does not stop the build.
  */
 export function createReport() {
   const violations = []
@@ -17,7 +17,7 @@ export function createReport() {
   }
 }
 
-/** Печатает отчёт в stderr и возвращает код выхода. */
+/** Prints the report to stderr and returns the exit code. */
 export function printReport(report, stream = process.stderr) {
   if (report.warnings.length > 0) {
     stream.write(`Предупреждения (${report.warnings.length}):\n`)

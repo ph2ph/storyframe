@@ -1,12 +1,13 @@
 /*
- * Эмуляция плагина в браузере (`storyframe emulate`): дерево слоёв каждого варианта и истории из `kit.json`
- * рисуется HTML по правилам auto layout Figma (hug, fill, fixed, абсолютные дети, обводка внутрь) и снимается
- * так же, как эталоны `storyframe export --shots`. Сверка `storyframe compare --figma <workDir>/shots/emulated`
- * ловит ошибки конвертера и раскладки без Figma. Чего эмуляция не знает: метрик шрифтов Figma, её импорта SVG
- * и рендера текста - их проверяют только снимки из самой Figma.
+ * Emulation of the plugin in a browser (`storyframe emulate`): the layer tree of every variant and story from
+ * `kit.json` is drawn as HTML by the rules of Figma auto layout (hug, fill, fixed, absolute children, inside
+ * stroke) and captured the same way as the `storyframe export --shots` references. The comparison
+ * `storyframe compare --figma <workDir>/shots/emulated` catches converter and layout errors without Figma. What
+ * the emulation does not know: Figma font metrics, its SVG import and text rendering; only screenshots from
+ * Figma itself check those.
  *
- *   storyframe emulate [--kit <выгрузка>/kit.json] [--out <workDir>/shots/emulated]
- *                      [--only <подстрока id набора или истории>]
+ *   storyframe emulate [--kit <export>/kit.json] [--out <workDir>/shots/emulated]
+ *                      [--only <substring of a component set or story id>]
  */
 
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
@@ -17,7 +18,7 @@ import { evaluate, launchChrome, openTab, serveStatic } from '../lib/storybook-s
 import { SVG_TINT } from './capture/types.ts'
 import { loadProject } from './paths.mjs'
 
-/** Цвет ссылки в CSS: токен - светлое значение из выгрузки, литерал - светлый. */
+/** CSS color of a reference: for a token, the light value from the export; for a literal, its light value. */
 function cssColor(tokens, ref) {
   if (!ref) return 'transparent'
   const value = 'token' in ref ? tokens.get(ref.token)?.light : ref.light
@@ -37,8 +38,8 @@ const ALIGN = { min: 'flex-start', center: 'center', max: 'flex-end', baseline: 
 const ALIGN_SELF = { min: 'flex-start', center: 'center', max: 'flex-end' }
 
 /**
- * HTML узла. `parent` - раскладка родителя и его поведение размера (как у `syncChildPlacement` плагина):
- * FILL у ребёнка родителя по содержимому и в переносимом ряду становится FIXED.
+ * HTML of a node. `parent` is the parent's layout and sizing behavior (as in the plugin's `syncChildPlacement`):
+ * FILL on a child of a hug-content parent or inside a wrapping row becomes FIXED.
  */
 function render(node, context, parent) {
   const { tokens, assets, components } = context
@@ -48,7 +49,7 @@ function render(node, context, parent) {
     if (parent) style.push('position: absolute', `left: ${node.box.x}px`, `top: ${node.box.y}px`)
   }
   if (node.opacity !== undefined) style.push(`opacity: ${node.opacity}`)
-  // Размер по правилам плагина.
+  // Sizing by the plugin's rules.
   const hugs =
     (node.type === 'frame' && node.layout.mode !== 'none') || (node.type === 'text' && node.autoResize === 'both')
   let width = 'fixed'
@@ -127,7 +128,7 @@ function render(node, context, parent) {
       const label = Object.values(node.overrides.text)[0]
       const labelPath = set.textProps[0]?.path
       const tree = label !== undefined && labelPath ? withText(variant.tree, labelPath, label) : variant.tree
-      // Экземпляр - корень варианта с размещением узла в родителе.
+      // An instance is the variant root with the node's placement in its parent.
       return render(
         { ...tree, box: node.box, absolute: node.absolute, grow: node.grow, alignSelf: node.alignSelf },
         context,
@@ -233,7 +234,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
   const chrome = launchChrome(profile)
   try {
     const tab = await openTab(chrome.cdp, { width: 1600, height: 1000 }, { newWindow: true })
-    // Шрифты - из каталога: страница эмуляции подключает его CSS шрифтов.
+    // Fonts come from the catalog: the emulation page loads its font CSS.
     await tab.send('Page.navigate', { url: `${origin}/iframe.html` })
     await new Promise((resolve) => setTimeout(resolve, 1500))
     for (const [index, job] of selected.entries()) {

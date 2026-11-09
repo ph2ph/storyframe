@@ -1,7 +1,8 @@
 /*
- * Экземпляры по сигнатурам классов (design, решение 6): вариант набора помнит семантические классы своего
- * корня; элемент другого дерева с теми же классами становится экземпляром этого варианта. Совпадение -
- * включение сигнатуры в классы элемента, побеждает самая длинная; при равных - вариант без состояния.
+ * Instances by class signatures (design, decision 6): a variant of a component set remembers the semantic
+ * classes of its root; an element of another tree with the same classes becomes an instance of that variant.
+ * A match means the signature is contained in the element's classes; the longest one wins, and on a tie the
+ * variant without a state.
  */
 
 function stateRank(variant) {
@@ -9,15 +10,15 @@ function stateRank(variant) {
   return state === undefined || state === 'default' ? 0 : 1
 }
 
-/** Индекс сигнатур: корневой класс компонента → варианты с сигнатурами. */
+/** Signature index: root class of a component → variants with signatures. */
 export function buildSignatureIndex(components) {
   const index = new Map()
   for (const component of components) {
     for (const variant of component.variants) {
-      // Склеенные с вариантом двойники (`dedupe.mjs`) ищутся по своим сигнатурам, а экземпляр берётся этого варианта.
+      // Twins merged into a variant (`dedupe.mjs`) are found by their own signatures; the instance is that variant's.
       for (const source of [variant, ...(variant.aliases ?? [])]) {
-        // Вариант индексируется по каждому классу своего корня (не детей - у них префикс `>`): кандидаты
-        // отбирает любой общий класс, побеждает самая длинная вложенная сигнатура. Префиксы библиотек не нужны.
+        // The variant is indexed by every class of its root (not of the children, those carry the `>` prefix):
+        // any shared class selects candidates, and the longest contained signature wins. No library prefixes needed.
         const entry = {
           component: component.id,
           variant: variant.variant,
@@ -36,7 +37,7 @@ export function buildSignatureIndex(components) {
   return index
 }
 
-/** Вариант по классам элемента; `null` - элемент не компонент реестра или комбинация вне матрицы. */
+/** Variant for the element's classes; `null`: not a registry component, or a combination outside the matrix. */
 export function matchSignature(index, classes, selfId = null) {
   const own = new Set(classes)
   const roots = classes.filter((name) => index.has(name))
@@ -77,16 +78,17 @@ function sizeOf(box) {
 }
 
 /**
- * Чем снятое поддерево отличается от варианта набора; `null` - можно подставить экземпляр. Сравниваются
- * тип и число детей, облик фреймов, стиль текста и его содержимое вне текстовых свойств, размеры
- * фиксированных сторон: у hug-сторон и текста auto-width размер задаёт содержимое, а подпись экземпляр
- * переопределит сам. Иначе растянутое поле формы стало бы экземпляром с узким вводом и чужим значением.
+ * How the captured subtree differs from the component set variant; `null` means an instance can be substituted.
+ * Compared are the type and number of children, the look of frames, the text style and its content outside
+ * text properties, and the sizes of fixed sides: on hug sides and auto-width text the size is set by the
+ * content, and the label the instance overrides itself. Otherwise a stretched form field would become an
+ * instance with a narrow input and a foreign value.
  */
 export function divergence(node, variantTree, textProps, rootPath = node.path) {
   const relative = (path) => (path.startsWith(rootPath) ? path.slice(rootPath.length) : path)
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
-  // Числа стиля текста (кегль, интерлиньяж в px) сравниваются с допуском: округления съёмки разных историй
-  // расходятся в сотых долях, а это один и тот же стиль.
+  // Numbers of the text style (font size, line height in px) are compared with a tolerance: rounding during
+  // capture of different stories diverges in hundredths, yet it is the same style.
   const sameStyle = (a, b) =>
     Object.keys({ ...a, ...b }).every((key) =>
       typeof a[key] === 'number' && typeof b[key] === 'number'
@@ -123,7 +125,7 @@ export function divergence(node, variantTree, textProps, rootPath = node.path) {
     if (a.children.length !== b.children.length) return `${at}: детей ${a.children.length} ≠ ${b.children.length}`
     for (const [index, child] of a.children.entries()) {
       const other = b.children[index]
-      // Положение детей вне auto layout - часть облика (полоса прогресса LinearProgress сдвинута на значение).
+      // Child position outside auto layout is part of the look (the LinearProgress bar is shifted by its value).
       const placed = a.layout.mode === 'none' || child.absolute
       if (
         placed &&
@@ -139,16 +141,16 @@ export function divergence(node, variantTree, textProps, rootPath = node.path) {
   return walk(node, variantTree)
 }
 
-/** Классы узла вместе с классами детей первого уровня (с префиксом `>`), как в сигнатуре варианта. */
+/** Node classes together with the classes of first-level children (prefixed with `>`), as in a variant signature. */
 export function classesWithChildren(node) {
   const children = node.children ?? []
   return [...(node.classes ?? []), ...children.flatMap((child) => (child.classes ?? []).map((name) => `>${name}`))]
 }
 
 /**
- * Заменяет узлы дерева экземплярами наборов. Классы с узлов снимаются: в выгрузку они не входят.
- * Узел, который отличается от варианта (растянутое поле, другой текст вне подписи), остаётся слоями:
- * `kept` перечисляет такие с причиной.
+ * Replaces tree nodes with instances of component sets. Classes are stripped from the nodes: they are not part
+ * of the export. A node that differs from the variant (a stretched field, different text outside the label)
+ * stays as layers: `kept` lists such nodes with the reason.
  * @returns {{ tree: object, dependsOn: string[], outOfMatrix: string[], kept: string[] }}
  */
 export function replaceInstances(tree, index, { selfId = null, where = '' } = {}) {
@@ -190,7 +192,7 @@ export function replaceInstances(tree, index, { selfId = null, where = '' } = {}
   return { tree: result, dependsOn: [...dependsOn], outOfMatrix, kept }
 }
 
-/** Снимает `classes` со всего дерева: в выгрузку они не входят. */
+/** Strips `classes` from the whole tree: they are not part of the export. */
 export function stripClasses(node) {
   delete node.classes
   if (node.type === 'frame') for (const child of node.children) stripClasses(child)

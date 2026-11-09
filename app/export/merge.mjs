@@ -1,7 +1,7 @@
 /*
- * Сведение деревьев светлого и тёмного режимов одного образца в дерево с ссылками на цвета: пара значений
- * ищется среди токенов (colorMatch), иначе остаётся литералами. Деревья структурно одинаковы (один DOM);
- * расхождение структуры - предупреждение, берётся светлое дерево.
+ * Merging the light and dark mode trees of one sample into a tree with color references: a pair of values
+ * is looked up among the tokens (colorMatch), otherwise it stays as literals. The trees are structurally
+ * identical (one DOM); a structure mismatch is a warning, and the light tree is taken.
  */
 
 import { matchPair } from './colorMatch.mjs'
@@ -86,9 +86,9 @@ function mergeEffect(index, report, where, light, dark, scope) {
 }
 
 /**
- * @param {Map} index индекс пар палитры
+ * @param {Map} index index of palette pairs
  * @param {IMergeReport} report
- * @param {string} where имя образца для отчёта
+ * @param {string} where sample name for the report
  */
 export function mergeTrees(index, report, where, light, dark, scope = { group: undefined }) {
   if (!dark || dark.type !== light.type) {
@@ -122,7 +122,8 @@ export function mergeTrees(index, report, where, light, dark, scope = { group: u
     case 'instance':
       return light
     default: {
-      // Заливка и обводка корня задают группу токенов детям: подпись primary-кнопки берёт `primary.contrastText`.
+      // Root fill and stroke set the token group for the children: the label of a primary button takes
+      // `primary.contrastText`.
       const fills = light.fills.map((paint, i) => mergePaint(index, report, at, paint, dark?.fills?.[i], scope))
       const stroke = light.stroke
         ? {
@@ -155,8 +156,8 @@ export function mergeTrees(index, report, where, light, dark, scope = { group: u
 }
 
 /**
- * Радиусы, равные токену скругления, получают ссылку на него (по всем четырём углам); углы не меньше половины
- * меньшей стороны - на токен «до круга», если тема его отметила.
+ * Radii equal to a corner radius token get a reference to it (on all four corners); corners of at least half
+ * the shorter side get the circle token, if the theme marked one.
  */
 export function bindRadii(tree, numbers) {
   const radii = numbers.filter((token) => token.scope === 'radius')

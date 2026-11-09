@@ -1,12 +1,12 @@
 /*
- * Токены выгрузки из темы проекта в формате storyframe (`theme.mjs`): цвета обоих режимов, числа скруглений
- * и отступов, стили текста, тени, свечение полотна, роли оформления плагина. Тема даёт значения в CSS,
- * здесь они переводятся в единицы Figma: RGBA 0–1, интерлиньяж и разрядка в процентах, размеры в px.
+ * Export tokens from the project theme in storyframe format (`theme.mjs`): colors of both modes, corner radius
+ * and gap numbers, text styles, shadows, canvas glow, roles for the plugin's styling. The theme gives values in
+ * CSS, here they are converted to Figma units: RGBA 0–1, line height and letter spacing in percent, sizes in px.
  */
 
 import { firstFamily, parseBoxShadow, parseColor, parsePx } from './capture/css.ts'
 
-/** Имя переменной Figma по адресу токена: точки - уровни группы (`tone.red.bg` → `tone/red/bg`). */
+/** Figma variable name from the token path: dots are group levels (`tone.red.bg` → `tone/red/bg`). */
 export function colorName(id) {
   return id.replaceAll('.', '/')
 }
@@ -16,14 +16,14 @@ function round(value, digits = 2) {
   return Math.round(value * factor) / factor
 }
 
-/** Интерлиньяж CSS → единицы Figma: число - множитель (проценты), `px` - пиксели. */
+/** CSS line height → Figma units: a number is a multiplier (percent), `px` is pixels. */
 export function lineHeightOf(value) {
   if (typeof value === 'number') return { unit: 'percent', value: round(value * 100, 1) }
   if (typeof value === 'string' && value.endsWith('px')) return { unit: 'px', value: parsePx(value) }
   return { unit: 'percent', value: 120 }
 }
 
-/** Разрядка CSS → единицы Figma: `em` - проценты от кегля, `px` или число - пиксели. */
+/** CSS letter spacing → Figma units: `em` is percent of the font size, `px` or a number is pixels. */
 export function letterSpacingOf(value) {
   if (typeof value === 'string' && value.endsWith('em'))
     return { unit: 'percent', value: round(parseFloat(value) * 100) }
@@ -31,7 +31,7 @@ export function letterSpacingOf(value) {
   return { unit: 'px', value: typeof value === 'number' ? value : 0 }
 }
 
-/** Необязательные поля темы, которые задал адаптер, - без ключей со значением `undefined`. */
+/** Optional theme fields set by the adapter, without keys whose value is `undefined`. */
 function given(fields) {
   return Object.fromEntries(Object.entries(fields).filter(([, value]) => value !== undefined))
 }
@@ -44,8 +44,8 @@ function textCaseOf(transform) {
 }
 
 /**
- * Свечение полотна: CSS `radial-gradient(W% H% at X% Y%, стопы)` в доли бокса и RGBA 0–1 - в Figma это слои
- * GRADIENT_RADIAL поверх цвета полотна.
+ * Canvas glow: CSS `radial-gradient(W% H% at X% Y%, stops)` into box fractions and RGBA 0–1; in Figma these are
+ * GRADIENT_RADIAL layers over the canvas color.
  * @param {unknown} css
  * @returns {{ cx: number, cy: number, rx: number, ry: number, stops: { pos: number, color: { r: number, g: number, b: number, a: number } }[] }[]}
  */
@@ -79,14 +79,14 @@ export function parseGlow(css) {
 }
 
 /**
- * @param {import('./theme.mjs').IStoryframeTheme} theme тема проекта в формате storyframe
+ * @param {import('./theme.mjs').IStoryframeTheme} theme the project theme in storyframe format
  */
 export function buildTokens(theme) {
   const warnings = []
 
   const colors = []
   for (const color of theme.colors) {
-    // Нет тёмного значения - одно на оба режима; `null` - в режиме цвет не задан.
+    // No dark value means one value for both modes; `null` means the color is not set in that mode.
     const lightCss = color.light
     const darkCss = color.dark === undefined ? color.light : color.dark
     const light = lightCss === null ? null : parseColor(lightCss)
@@ -127,7 +127,7 @@ export function buildTokens(theme) {
   const seen = new Set()
   for (const shadow of theme.shadows) {
     const dark = shadow.dark ?? shadow.light
-    // Одинаковые тени под разными номерами - один стиль эффекта.
+    // Identical shadows under different numbers are one effect style.
     const key = `${shadow.light}|${dark}`
     if (seen.has(key)) continue
     seen.add(key)

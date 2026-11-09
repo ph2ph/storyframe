@@ -1,4 +1,4 @@
-/** Ячейка матрицы: аргументы «Базовой» истории и классы аддона pseudo-states для обёртки. */
+/** A matrix cell: args of the "Basic" story and pseudo-states addon classes for the wrapper. */
 export interface IDocsCell {
   key: string
   variant: Record<string, string>
@@ -7,16 +7,16 @@ export interface IDocsCell {
 }
 
 export interface IDocsMatrix {
-  /** Набор, как он называется в выгрузке (`Button`, `MiniDrawerItem`). */
+  /** The component set as it is named in the export (`Button`, `MiniDrawerItem`). */
   id: string
-  /** История, с которой снимается набор. */
+  /** The story the component set is captured from. */
   storyId: string
   axes?: { name: string; values: string[] }[]
-  /** Число вариантов. */
+  /** Number of variants. */
   count?: number
   columns?: { key: string; values: [string, string][] }[]
   rows?: { key: string; values: [string, string][]; cells: (IDocsCell | null)[] }[]
-  /** Матрицу не построить (у оси нет списка значений в `argTypes`). */
+  /** The matrix cannot be built (an axis has no list of values in `argTypes`). */
   error?: string
 }
 

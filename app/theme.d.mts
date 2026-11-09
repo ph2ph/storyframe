@@ -1,43 +1,44 @@
-/** Шрифт темы: семейство и начертания, которые нужны стилям текста. */
+/** Theme font: the family and the weights the text styles need. */
 export interface IStoryframeFont {
   family: string
   weights: number[]
 }
 
 /**
- * Как токен пишут в коде проекта (`theme.palette.primary.main`, `var(--color-primary)`): подсказка в описании
- * и синтаксис кода переменной в Dev Mode. Без него - адрес токена.
+ * How the token is written in project code (`theme.palette.primary.main`, `var(--color-primary)`): a hint in the
+ * description and the variable's code syntax in Dev Mode. Without it, the token path.
  */
 type TTokenCode = string
 
 /**
- * Цвет: значения режимов в CSS (`#1976d2`, `rgba(0, 0, 0, 0.6)`). Без тёмного - одно значение на оба режима;
- * `null` - в этом режиме цвет не задан (переменная берёт значение другого режима с пометкой в описании).
+ * Color: the mode values in CSS (`#1976d2`, `rgba(0, 0, 0, 0.6)`). Without dark, one value for both modes;
+ * `null` means the color is not set in this mode (the variable takes the other mode's value with a note in the
+ * description).
  */
 export interface IStoryframeColor {
-  /** Адрес токена: по нему выгрузка привязывает цвета слоёв (`palette.primary.main`). */
+  /** Token path: the export binds layer colors by it (`palette.primary.main`). */
   id: string
-  /** Имя переменной Figma; по умолчанию адрес с `/` вместо точек. */
+  /** Figma variable name; by default the path with `/` instead of dots. */
   name?: string
   light: string | null
   dark?: string | null
   description?: string
   code?: TTokenCode
   /**
-   * Группа токена: если у нескольких токенов одинаковые значения, слой берёт токен той же группы, что у
-   * соседних слоёв (подпись кнопки - `primary.contrastText` рядом с фоном `primary.main`).
+   * Token group: if several tokens have the same values, the layer takes the token of the same group as the
+   * neighbouring layers (a button label is `primary.contrastText` next to the `primary.main` background).
    */
   group?: string
   /**
-   * Приоритет среди токенов с одинаковыми значениями по роли краски (заливка, текст, обводка): меньше - выше,
-   * без значения - после всех. Дальше выбор идёт по длине адреса.
+   * Priority among tokens with the same values per paint role (fill, text, stroke): lower is higher, no value
+   * means after all others. Beyond that the choice goes by the path length.
    */
   priority?: { fill?: number; text?: number; stroke?: number }
-  /** Цвет текста: в Figma переменная предлагается тексту и фигурам, но не заливке фреймов. */
+  /** Text color: in Figma the variable is offered to text and shapes, but not to frame fills. */
   text?: boolean
 }
 
-/** Число: скругление или отступ. */
+/** Number: a corner radius or a spacing. */
 export interface IStoryframeNumber {
   id: string
   name: string
@@ -45,14 +46,14 @@ export interface IStoryframeNumber {
   scope: 'radius' | 'gap'
   description?: string
   code?: TTokenCode
-  /** Скругление «до круга» (таблетки, аватары): привязывается к углам не меньше половины меньшей стороны бокса. */
+  /** "Full circle" corner radius (pills, avatars): bound to corners of at least half the smaller side of the box. */
   circle?: boolean
 }
 
-/** Стиль текста: значения как в CSS, кегль в px. */
+/** Text style: values as in CSS, the font size in px. */
 export interface IStoryframeTypography {
   id: string
-  /** Имя стиля Figma; по умолчанию `Typography/<id>`. */
+  /** Figma style name; by default `Typography/<id>`. */
   name?: string
   fontFamily: string
   fontSize: number
@@ -63,10 +64,10 @@ export interface IStoryframeTypography {
   code?: TTokenCode
 }
 
-/** Тень: `box-shadow` режимов. */
+/** Shadow: the `box-shadow` of the modes. */
 export interface IStoryframeShadow {
   id: string
-  /** Имя стиля эффекта; по умолчанию `Shadow/<id>`. */
+  /** Effect style name; by default `Shadow/<id>`. */
   name?: string
   light: string
   dark?: string
@@ -74,8 +75,8 @@ export interface IStoryframeShadow {
 }
 
 /**
- * Роли оформления плагина: адреса токенов темы, которыми плагин рисует полотно, подписи и рамки
- * документации. Без роли - нейтральные значения плагина.
+ * Plugin decoration roles: the theme token paths the plugin uses to draw the canvas, labels and borders of the
+ * documentation. Without a role, the plugin's neutral values.
  */
 export interface IStoryframeRoles {
   canvas?: string
@@ -90,14 +91,14 @@ export interface IStoryframeRoles {
   caption?: string
 }
 
-/** Тема проекта в формате storyframe. */
+/** Project theme in the storyframe format. */
 export interface IStoryframeTheme {
   fonts: IStoryframeFont[]
   colors: IStoryframeColor[]
   numbers: IStoryframeNumber[]
   typography: IStoryframeTypography[]
   shadows: IStoryframeShadow[]
-  /** Свечение полотна: CSS `radial-gradient(...)` режимов поверх цвета роли `canvas`. */
+  /** Canvas glow: the CSS `radial-gradient(...)` of the modes over the color of the `canvas` role. */
   canvas?: { light?: string; dark?: string }
   roles?: IStoryframeRoles
 }

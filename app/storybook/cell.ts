@@ -1,9 +1,9 @@
 /*
- * Параметр `storyframe.cell`: история отрисована ячейкой блока «Варианты». Декоратор проекта по нему снимает
- * у ячейки поля и фон, которые он даёт отдельной истории.
+ * The `storyframe.cell` parameter: the story is rendered as a cell of the Variants block. By it the project
+ * decorator removes from the cell the padding and background it gives a standalone story.
  */
 
-/** Аннотации истории с параметром ячейки. */
+/** Story annotations with the cell parameter. */
 export function cellAnnotations(source: unknown): Record<string, unknown> {
   const annotations = (typeof source === 'function' ? { render: source } : (source ?? {})) as Record<string, unknown>
   const parameters = (annotations.parameters ?? {}) as Record<string, unknown>
@@ -11,7 +11,7 @@ export function cellAnnotations(source: unknown): Record<string, unknown> {
   return { ...annotations, parameters: { ...parameters, storyframe: { ...own, cell: true } } }
 }
 
-/** История отрисована ячейкой блока «Варианты»: для декоратора проекта (`context.parameters`). */
+/** The story is rendered as a cell of the Variants block: for the project decorator (`context.parameters`). */
 export function isVariantsCell(parameters: Record<string, unknown> | undefined): boolean {
   const own = parameters?.storyframe as { cell?: unknown } | undefined
   return own?.cell === true

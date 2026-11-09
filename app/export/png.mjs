@@ -1,6 +1,6 @@
 /*
- * Минимальный PNG: чтение 8-битных несжатых-в-interlace файлов (серый, серый+альфа, RGB, RGBA) и запись
- * RGBA. Нужен только сверке снимков (`compare.mjs`), поэтому без зависимостей и без экзотики формата.
+ * Minimal PNG: reading 8-bit non-interlaced files (gray, gray+alpha, RGB, RGBA) and writing RGBA. Needed only
+ * by the screenshot comparison (`compare.mjs`), hence no dependencies and no exotic parts of the format.
  */
 
 import { deflateSync, inflateSync } from 'node:zlib'
@@ -29,7 +29,7 @@ function paeth(a, b, c) {
   return pb <= pc ? b : c
 }
 
-/** @returns {{ width: number, height: number, data: Uint8Array }} RGBA по 4 байта на пиксель */
+/** @returns {{ width: number, height: number, data: Uint8Array }} RGBA, 4 bytes per pixel */
 export function decodePng(buffer) {
   if (!buffer.subarray(0, 8).equals(SIGNATURE)) throw new Error('Не PNG')
   let offset = 8
@@ -96,7 +96,7 @@ function chunk(type, body) {
   return Buffer.concat([length, typed, crc])
 }
 
-/** RGBA → PNG без фильтров: сверке важна простота, а не размер файла. */
+/** RGBA → PNG without filters: the comparison values simplicity over file size. */
 export function encodePng({ width, height, data }) {
   const header = Buffer.alloc(13)
   header.writeUInt32BE(width, 0)

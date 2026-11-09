@@ -1,6 +1,6 @@
 /*
- * Сериализация `svg` для `createNodeFromSvg`: `currentColor` подставляется вычисленным цветом, размеры -
- * явно (Figma берёт их из `width`/`height` или `viewBox`). Маски псевдоэлементов приходят data-URI.
+ * Serialization of `svg` for `createNodeFromSvg`: `currentColor` is replaced with the computed color, the sizes
+ * are explicit (Figma takes them from `width`/`height` or `viewBox`). Pseudo-element masks arrive as data URIs.
  */
 
 const PAINT_PROPS = ['fill', 'stroke'] as const
@@ -36,14 +36,14 @@ function rgba(value: string): { r: number; g: number; b: number; a: number } | n
 }
 
 /**
- * SVG для `createNodeFromSvg`. Вычисленные стили каждого элемента (заливка, обводка, штрихи, прозрачность,
- * шрифт у `text`) переносятся в атрибуты: CSS классов в Figma не доедет. Цвет, равный `currentColor`
- * корня, пишется меткой `tint` - его перекрашивает плагин; прочие цвета остаются как есть.
+ * SVG for `createNodeFromSvg`. The computed styles of every element (fill, stroke, dashes, opacity, font on
+ * `text`) are moved into attributes: the CSS of the classes will not reach Figma. A color equal to the root's
+ * `currentColor` is written as the `tint` marker, the plugin recolors it; other colors stay as they are.
  */
 export interface ISerializeOptions {
-  /** Поворот или отражение CSS (`[a, b, c, d]` матрицы без сдвига) вокруг центра `viewBox`. */
+  /** CSS rotation or reflection (`[a, b, c, d]` of the matrix without translation) around the `viewBox` center. */
   rotation?: [number, number, number, number] | null
-  /** Без элементов `text`: их несут текстовые слои. */
+  /** Without `text` elements: text layers carry them. */
   skipText?: boolean
 }
 
@@ -64,8 +64,8 @@ export function serializeSvg(
     Math.abs(color.r - current.r) < 0.01 &&
     Math.abs(color.g - current.g) < 0.01 &&
     Math.abs(color.b - current.b) < 0.01
-  // Значения по умолчанию SVG и унаследованные от родителя не пишутся: разметка остаётся короткой, а
-  // одинаковые глифы дедуплицируются.
+  // SVG default values and those inherited from the parent are not written: the markup stays short, and
+  // identical glyphs are deduplicated.
   const initial: Record<string, string> = {
     stroke: 'none',
     'stroke-width': '1',
@@ -127,8 +127,9 @@ export function serializeSvg(
 }
 
 /**
- * Содержимое `svg` в группе с матрицей поворота вокруг центра `viewBox` (у CSS `transform-origin` по умолчанию -
- * центр элемента): стрелка сортировки с `rotate(180deg)` в Figma смотрит туда же, куда в браузере.
+ * The `svg` content in a group with a rotation matrix around the `viewBox` center (the default CSS
+ * `transform-origin` is the element center): a sort arrow with `rotate(180deg)` points the same way in Figma as
+ * in the browser.
  */
 function rotateContent(svg: SVGElement, [a, b, c, d]: [number, number, number, number], width: number, height: number) {
   const box = (svg.getAttribute('viewBox') ?? '')
@@ -144,16 +145,16 @@ function rotateContent(svg: SVGElement, [a, b, c, d]: [number, number, number, n
   const f = cy - (b * cx + d * cy)
   group.setAttribute('transform', `matrix(${[a, b, c, d, e, f].map(round).join(' ')})`)
   for (const child of [...svg.childNodes]) {
-    // `defs` (градиенты, маски) остаются на месте: ссылки на них не зависят от группы.
+    // `defs` (gradients, masks) stay in place: references to them do not depend on the group.
     if (child instanceof Element && child.tagName.toLowerCase() === 'defs') continue
     group.append(child)
   }
   svg.append(group)
 }
 
-/** SVG из `mask-image: url("data:image/svg+xml,…")`; `null`, если маска не SVG. */
+/** SVG from `mask-image: url("data:image/svg+xml,…")`; `null` if the mask is not an SVG. */
 export function svgFromMask(maskImage: string): string | null {
-  // Внутри URI в двойных кавычках стоят одинарные (`xmlns='…'`): граница - только парная кавычка.
+  // Inside a double-quoted URI there are single quotes (`xmlns='…'`): only the matching quote is the boundary.
   const match = /url\("([^"]*)"\)|url\('([^']*)'\)|url\(([^)]*)\)/.exec(maskImage)
   const uri = match?.[1] ?? match?.[2] ?? match?.[3]
   if (!uri || !uri.startsWith('data:image/svg+xml')) return null
@@ -167,7 +168,7 @@ export function svgFromMask(maskImage: string): string | null {
   }
 }
 
-/** Маска как заливаемый контур: цвет ставится в `fill`, `viewBox` сохраняется, размеры - как у псевдоэлемента. */
+/** The mask as a filled outline: the color goes into `fill`, `viewBox` is kept, the sizes are the pseudo-element's. */
 export function maskToSvg(markup: string, color: string, width: number, height: number): string {
   const doc = new DOMParser().parseFromString(markup, 'image/svg+xml')
   const root = doc.documentElement
@@ -184,7 +185,7 @@ export function maskToSvg(markup: string, color: string, width: number, height: 
   return new XMLSerializer().serializeToString(root)
 }
 
-/** Хеш строки для дедупликации ассетов: FNV-1a, 32 бита, шестнадцатеричный. */
+/** String hash for asset deduplication: FNV-1a, 32 bits, hexadecimal. */
 export function hashString(text: string): string {
   let hash = 0x811c9dc5
   for (let i = 0; i < text.length; i += 1) {

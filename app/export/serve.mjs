@@ -1,9 +1,9 @@
 /*
- * Локальная раздача сборки Storybook с заголовком CORS (`storyframe serve`): проверка загрузки выгрузки в
- * плагин по ссылке. Интерфейс плагина Figma имеет origin `null`, поэтому серверу нужен
- * `Access-Control-Allow-Origin: *`; `http://localhost` браузер не считает mixed content.
+ * Local serving of the Storybook static build with a CORS header (`storyframe serve`): checks that the export
+ * loads into the Figma plugin by URL. The Figma plugin UI has origin `null`, so the server needs
+ * `Access-Control-Allow-Origin: *`; the browser does not treat `http://localhost` as mixed content.
  *
- *   storyframe serve [--port 6009] [--dir <сборка Storybook>]
+ *   storyframe serve [--port 6009] [--dir <Storybook static build>]
  */
 
 import { readFile } from 'node:fs/promises'
@@ -50,6 +50,6 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
   process.stderr.write(
     `Выгрузка для Figma: http://localhost:${port}/${kit} (в плагине - адрес http://localhost:${port})\n`,
   )
-  // Сервер работает до Ctrl+C.
+  // The server runs until Ctrl+C.
   return new Promise(() => {})
 }

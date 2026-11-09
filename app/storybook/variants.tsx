@@ -1,11 +1,12 @@
 /*
- * Блок «Варианты» страницы документации: матрица «Базовой» истории компонента - все сочетания осей и
- * состояния, те же, что набор в Figma. Наборы, оси и состояния выбираются по правилам выгрузки
- * (`export/docsMatrix.mjs`) и конфигурации проекта, подписи - те же, что в файле Figma (`export/variants.ts`).
- * Наведение и фокус без своих аргументов показывает аддон pseudo-states классами на обёртке ячейки.
+ * The Variants block of the docs page: the matrix of the component's "Basic" story, all combinations of the
+ * axes and the states, the same ones as the set in Figma. The sets, axes and states are chosen by the export
+ * rules (`export/docsMatrix.mjs`) and the project configuration, the labels are the same as in the Figma file
+ * (`export/variants.ts`). Hover and focus without arguments of their own are shown by the pseudo-states addon
+ * with classes on the cell wrapper.
  *
- * Ячейка рисуется историей с параметром `storyframe.cell`: декоратор проекта по нему снимает у неё поля и
- * фон, которые он даёт отдельной истории.
+ * A cell is drawn by a story with the `storyframe.cell` parameter: by it the project decorator removes from the
+ * cell the padding and background it gives a standalone story.
  */
 
 import { Component, useContext, useEffect, useMemo, type ContextType, type ReactNode } from 'react'
@@ -24,7 +25,7 @@ const NO_CONFIG: IStoryframeConfig = {}
 
 const labelStyle = { fontSize: 12, lineHeight: '16px', opacity: 0.72 } as const
 
-/** Ячейка, на которой история падает, не роняет страницу документации. */
+/** A cell where the story crashes does not bring down the docs page. */
 class CellBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false }
 
@@ -40,9 +41,9 @@ class CellBoundary extends Component<{ children: ReactNode }, { failed: boolean 
 type TComposed = ReturnType<typeof composeStory>
 
 /**
- * Отрисовка ячейки: составная история - функция, которая на каждый вызов заводит свой контекст, поэтому
- * одна история на матрицу обслуживает все ячейки. Вызов внутри компонента ячейки: ошибку истории ловит
- * `CellBoundary`, а не страница.
+ * Cell rendering: a composed story is a function that sets up its own context on every call, so one story per
+ * matrix serves all the cells. The call is inside the cell component: the story error is caught by
+ * `CellBoundary`, not by the page.
  */
 function CellContent({ composed, args }: { composed: TComposed; args: Record<string, unknown> }) {
   return composed(args)
@@ -77,11 +78,11 @@ function Matrix({
   return (
     <>
       {titled ? <p style={labelStyle}>Набор {matrix.id}</p> : null}
-      {/* `sb-unstyled`: оформление текста страницы документации (Storybook и `preview.tsx`) не трогает ячейки. */}
+      {/* `sb-unstyled`: the docs page text styling (Storybook and `preview.tsx`) does not touch the cells. */}
       <div className="sb-unstyled" style={{ overflowX: 'auto', paddingBlock: 8 }}>
         <div
-          // Столбец не уже естественной ширины содержимого (поле, сжатое до минимума, обрезает подпись),
-          // свободное место делится поровну: растянутые компоненты (AppBar) занимают ширину ячейки.
+          // A column is no narrower than the natural content width (a field squeezed to the minimum clips its
+          // label), the free space is split evenly: stretched components (AppBar) take the cell width.
           style={{
             display: 'grid',
             gridTemplateColumns: `${labelled ? 'max-content ' : ''}repeat(${columns.length}, minmax(max-content, 1fr))`,
@@ -120,8 +121,8 @@ function Matrix({
 }
 
 /**
- * @param config конфигурация storyframe проекта (`storyframe.config.ts`); без неё наборы ищутся по общим
- *   правилам выгрузки
+ * @param config the project's storyframe configuration (`storyframe.config.ts`); without it the sets are found
+ *   by the general export rules
  */
 export function Variants({ config = NO_CONFIG }: { config?: IStoryframeConfig }) {
   const context = useContext(DocsContext)
@@ -132,16 +133,16 @@ export function Variants({ config = NO_CONFIG }: { config?: IStoryframeConfig })
     [preparedMeta.title, stories, config],
   )
   const first = stories.find((story) => story.id === matrices[0]?.storyId)
-  // Глобалы контекста Storybook типизированы как `any`: режим читается как неизвестное значение.
+  // The Storybook context globals are typed as `any`: the mode is read as an unknown value.
   const globals = (first ? context.getStoryContext(first).globals : {}) as Record<string, unknown>
   const mode = typeof globals.mode === 'string' ? globals.mode : ''
-  // Составные истории получают режим темы страницы: без него ячейки были бы светлыми в тёмной теме.
+  // Composed stories receive the page theme mode: without it the cells would be light in the dark theme.
   const project = useMemo(
     () => ({ ...context.projectAnnotations, initialGlobals: { ...context.projectAnnotations.initialGlobals, mode } }),
     [context, mode],
   )
-  // Аддон pseudo-states переписывает правила `:hover` в стилях страницы по событию отрисовки документации.
-  // Стили ячеек MUI вставляет при их первом рендере (и заново при смене темы) - после этого события.
+  // The pseudo-states addon rewrites the `:hover` rules in the page styles on the docs rendered event. MUI
+  // inserts the cell styles on their first render (and again on a theme change), after that event.
   useEffect(() => {
     if (matrices.length === 0) return undefined
     const timer = setTimeout(() => context.channel.emit('docsRendered', preparedMeta.id), 0)

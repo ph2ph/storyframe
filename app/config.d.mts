@@ -1,11 +1,11 @@
-/** Ось набора по аргументу истории: значения - из `argTypes`, без исключённых. */
+/** Set axis by a story argument: the values come from `argTypes`, minus the excluded ones. */
 export interface IStoryframeArgAxis {
   name: string
   arg: string
   exclude?: string[]
 }
 
-/** Ось набора с явными значениями: аргументы истории или корень (`{ root: селектор }`) на каждое значение. */
+/** Set axis with explicit values: story arguments or the root (`{ root: selector }`) for each value. */
 export interface IStoryframeValuesAxis {
   name: string
   values: Record<string, Record<string, unknown>>
@@ -13,55 +13,55 @@ export interface IStoryframeValuesAxis {
 
 export type TStoryframeState = 'default' | 'hover' | 'focus' | 'disabled' | 'error'
 
-/** Набор с осями, которые выгрузка сама из `argTypes` не выведет. */
+/** A set with axes that the export cannot derive from `argTypes` on its own. */
 export interface IStoryframeComponent {
-  /** Имя набора в файле Figma и ключ пропусков, исключений. */
+  /** Set name in the Figma file and the key for skips and exceptions. */
   id: string
-  /** Группа и имя набора (`Inputs/Button`). */
+  /** Group and name of the set (`Inputs/Button`). */
   name: string
   storyId: string
   storyFile: string
-  /** Селектор корня компонента в истории. */
+  /** Selector of the component root in the story. */
   root: string
   axes: (IStoryframeArgAxis | IStoryframeValuesAxis)[]
   states: TStoryframeState[]
-  /** Первый текстовый слой - свойство `Label` набора. */
+  /** The first text layer is the set's `Label` property. */
   label?: boolean
   fixedArgs?: Record<string, unknown>
   dependsOn?: string[]
-  /** Аргументы, которыми состояние показывается без взаимодействия (поле с `focused`) - для блока «Варианты». */
+  /** Arguments that show the state without interaction (a field with `focused`): for the Variants block. */
   stateArgs?: Partial<Record<TStoryframeState, Record<string, unknown>>>
 }
 
-/** Страница Figma: разделы каталога по префиксам заголовков историй. */
+/** Figma page: catalog sections by story title prefixes. */
 export interface IStoryframePage {
-  /** Идентификатор страницы в файле: по нему плагин находит её при следующем запуске. По умолчанию - `name`. */
+  /** Page id in the file: the plugin finds the page by it on the next run. Defaults to `name`. */
   id?: string
   name: string
   include: string[]
 }
 
 export interface IStoryframeConfig {
-  /** Статическая сборка Storybook от корня проекта. По умолчанию `storybook-static`. */
+  /** Storybook static build relative to the project root. Defaults to `storybook-static`. */
   storybook?: string
-  /** Папка выгрузки. По умолчанию `<storybook>/figma-data`. */
+  /** Export folder. Defaults to `<storybook>/figma-data`. */
   out?: string
-  /** Рабочая папка: сборки плагина, снимки сверки. По умолчанию `.storyframe`. */
+  /** Working folder: plugin builds, comparison screenshots. Defaults to `.storyframe`. */
   workDir?: string
-  /** Модуль темы проекта: экспорт по умолчанию - тема в формате storyframe (адаптер `@ph2ph/storyframe/mui`). */
+  /** Project theme module: its default export is a storyframe-format theme (the `@ph2ph/storyframe/mui` adapter). */
   theme?: string
-  /** Адрес опубликованного Storybook для ссылок «История». */
+  /** URL of the published Storybook for the "Story" links. */
   storyUrl?: string
-  /** Страницы Figma. По умолчанию - страница на каждый раздел верхнего уровня каталога. */
+  /** Figma pages. By default, a page for each top-level section of the catalog. */
   pages?: IStoryframePage[]
-  /** Префиксы заголовков вне файла. */
+  /** Title prefixes left out of the file. */
   exclude?: string[]
-  /** Компоненты, которые наборами не становятся: имя → причина. */
+  /** Components that do not become sets: name → reason. */
   skip?: Record<string, string>
   components?: IStoryframeComponent[]
-  /** Наборы, которым разрешены непривязанные к токенам цвета: id → причина. */
+  /** Sets allowed to have colors not bound to tokens: id → reason. */
   unboundExceptions?: Record<string, string>
-  /** Раскладка файла: наибольшая ширина папки на странице (по умолчанию плагин берёт 1980). */
+  /** File layout: the largest folder width on a page (by default the plugin takes 1980). */
   layout?: { maxWidth: number }
 }
 

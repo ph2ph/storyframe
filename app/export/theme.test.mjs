@@ -9,7 +9,7 @@ let root
 beforeAll(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'storyframe-theme-'))
   await mkdir(path.join(root, 'theme'))
-  // Модуль темы на TypeScript с импортом соседнего модуля: так тему пишет проект.
+  // A TypeScript theme module importing a sibling module: this is how a project writes its theme.
   await writeFile(path.join(root, 'theme/palette.ts'), `export const primary: string = '#1976d2'\n`)
   await writeFile(
     path.join(root, 'theme/index.ts'),
@@ -29,17 +29,17 @@ afterAll(async () => {
   await rm(root, { recursive: true, force: true })
 })
 
-describe('загрузка темы проекта', () => {
-  it('без модуля - пустая тема', async () => {
+describe('loading the project theme', () => {
+  it('without a module, the empty theme', async () => {
     expect(await loadTheme(root, null)).toBe(EMPTY_THEME)
   })
 
-  it('модуль TypeScript с функцией по умолчанию', async () => {
+  it('TypeScript module with a function as the default export', async () => {
     const theme = await loadTheme(root, 'theme/index.ts')
     expect(theme.colors).toEqual([{ id: 'primary', light: '#1976d2' }])
   })
 
-  it('тема не в формате storyframe - ошибка с путями нарушений', async () => {
+  it('a theme not in storyframe format fails with the violation paths', async () => {
     await expect(loadTheme(root, 'broken.ts')).rejects.toThrow(/broken\.ts не в формате storyframe:\n {2}fonts: /)
   })
 })

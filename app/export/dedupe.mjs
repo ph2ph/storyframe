@@ -1,18 +1,19 @@
 /*
- * Склейка вариантов, которые на макете не отличаются. Значение оси, у которого при всех прочих значениях дерево
- * слоёв совпадает с деревом значения по умолчанию, в набор не идёт: на холсте это был бы дубль (AppBar с
- * `position` fixed и static, Step с `last`, CardActionArea `disabled`). Ось, у которой осталось одно значение,
- * уходит из набора целиком. Что склеено - в `collapsed` набора, плагин пишет это в подписях набора.
+ * Merging of variants that are indistinguishable in the design. An axis value whose layer tree matches the
+ * tree of the default value for all other values does not go into the component set: on the canvas it would
+ * be a duplicate (AppBar with `position` fixed and static, Step with `last`, CardActionArea `disabled`). An
+ * axis left with a single value leaves the component set entirely. What was merged is in the set's
+ * `collapsed`, the Figma plugin writes it into the set's labels.
  */
 
-/** Числа сравниваются с шагом 0,1 px: соседние съёмки одного состояния расходятся в сотых. */
+/** Numbers are compared with a 0.1 px step: adjacent captures of the same state differ in the hundredths. */
 function rounded(value) {
   return typeof value === 'number' ? Math.round(value * 10) / 10 : value
 }
 
 /**
- * Дерево без имён, путей и служебных полей: сравниваются облик и геометрия. `loose` - без горизонтальной
- * геометрии (x, ширина, поведение размера).
+ * The tree without names, paths and service fields: appearance and geometry are compared. `loose` drops the
+ * horizontal geometry (x, width, sizing behavior).
  */
 function normalized(node, loose) {
   const out = {}
@@ -35,9 +36,9 @@ function mapNumbers(value) {
 }
 
 /**
- * Деревья одинаковы на макете. Корни разной ширины (AppBar `position: fixed` шириной в окно, `static` - в
- * контейнер) при `loose` сравниваются без горизонтальной геометрии: это тот же компонент в другом по ширине
- * контейнере, в Figma ширину задаёт экземпляр.
+ * The trees are identical in the design. Roots of different width (AppBar `position: fixed` as wide as the
+ * window, `static` as wide as the container) are compared without horizontal geometry when `loose`: it is the
+ * same component in a container of another width, in Figma the width is set by the instance.
  */
 export function sameLook(a, b, loose = true) {
   if (JSON.stringify(normalized(a, false)) === JSON.stringify(normalized(b, false))) return true
@@ -56,10 +57,10 @@ function twinOf(variants, variant, axis, value) {
 }
 
 /**
- * Склеивает одинаковые на макете варианты набора на месте. Варианты, ушедшие в склейку, остаются у оставшегося
- * двойника в `aliases` (сигнатура и дерево): экземпляры в историях находятся и по ним.
+ * Merges the component set's variants that are identical in the design, in place. The merged-away variants
+ * stay with the remaining twin in `aliases` (signature and tree): instances in stories are found by them too.
  * @param {{ axes: { name: string, values: string[], description?: string }[], variants: { variant: Record<string, string>, tree: object, signature: string[], aliases?: object[] }[] }} component
- * @param {Record<string, string | null>} defaults значение по умолчанию на ось
+ * @param {Record<string, string | null>} defaults default value per axis
  * @returns {{ axis: string, values: string[], into: string, description?: string }[]}
  */
 export function collapseIdentical(component, defaults) {
@@ -77,8 +78,8 @@ export function collapseIdentical(component, defaults) {
         const twin = twinOf(component.variants, variant, axis.name, into)
         if (!twin) continue
         compared += 1
-        // Без горизонтальной геометрии - только если ширину обоих корней задала страница (`stretched` съёмки):
-        // у Container с `maxWidth` ширина и есть его облик.
+        // Without horizontal geometry only if the width of both roots was set by the page (`stretched` from the
+        // capture): for a Container with `maxWidth` the width is its appearance.
         if (!sameLook(variant.tree, twin.tree, Boolean(variant.stretched && twin.stretched))) {
           same = false
           break
@@ -111,8 +112,8 @@ export function collapseIdentical(component, defaults) {
 }
 
 /**
- * Оси с одним значением из набора убираются. Figma нужно хотя бы одно свойство варианта: если не осталось ни
- * одной оси, остаётся `State` (или первая ось).
+ * Axes with a single value are removed from the component set. Figma needs at least one variant property: if
+ * no axis is left, `State` (or the first axis) stays.
  */
 export function dropSingleAxes(component) {
   const single = component.axes.filter((axis) => axis.values.length <= 1)

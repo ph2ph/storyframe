@@ -1,49 +1,50 @@
 # storyframe
 
-Дизайн-система в Figma из каталога Storybook. В этом пакете две части:
+Design system in Figma from a Storybook catalog. The package has two parts:
 
-- **Выгрузка** (`storyframe export`): headless Chrome открывает статическую сборку Storybook, снимает
-  истории в дерево слоёв (auto layout, заливки, обводки, тени, текст, SVG) и собирает `kit.json` и `kit.zip`
-  вместе с токенами темы проекта.
-- **Блок «Варианты»** для страниц документации Storybook: те же наборы, оси и состояния, что в Figma,
-  чтобы примеры в каталоге и в файле совпадали.
+- **Export** (`storyframe export`): headless Chrome opens a Storybook static build, captures stories into a layer
+  tree (auto layout, fills, strokes, shadows, text, SVG) and assembles `kit.json` and `kit.zip` together with the
+  project theme tokens.
+- **The Variants block** for Storybook docs pages: the same component sets, axes and states as in Figma, so that
+  the examples in the catalog and in the file match.
 
-Выгрузку читает плагин Figma storyframe. Он живёт в отдельном репозитории `storyframe-plugin` и строит из
-неё нативные переменные Light/Dark, стили текста и эффектов, наборы компонентов с вариантами и истории
-фреймами; повторный запуск обновляет файл по месту. Формат выгрузки плагин берёт из этого пакета, поэтому
-сборщик и плагин всегда говорят на одном языке.
+The export is read by the storyframe Figma plugin. It lives in a separate repository, `storyframe-plugin`, and
+builds from the export native Light/Dark variables, text and effect styles, component sets with variants and
+stories as frames; a repeated run updates the file in place. The plugin takes the export format from this package,
+so the exporter and the plugin always speak the same language.
 
-Пакет ничего не знает о конкретном каталоге: страницы, наборы с особыми осями и тема задаются в проекте.
+The package knows nothing about a specific catalog: pages, component sets with custom axes and the theme are
+defined in the project.
 
-## Требования
+## Requirements
 
-- Node 24 (не ниже 22.22.1): пакет поставляется исходниками, `.ts` Node выполняет сам.
-- Статическая сборка Storybook 10 (`storybook build`) с React и Vite.
-- Chrome или Chromium для съёмки: по умолчанию `google-chrome`, другой путь - переменная `CHROME`.
-- Vite в проекте, если задан модуль темы (он грузится через Vite SSR).
+- Node 24 (not lower than 22.22.1): the package ships as sources, Node runs `.ts` itself.
+- A Storybook 10 static build (`storybook build`) with React and Vite.
+- Chrome or Chromium for capture: `google-chrome` by default, another path via the `CHROME` variable.
+- Vite in the project if a theme module is set (it is loaded through Vite SSR).
 
-## Подключение
+## Installation
 
-Пакет публикуется в npmjs под именем `@ph2ph/storyframe`, команда CLI называется `storyframe`:
+The package is published on npmjs as `@ph2ph/storyframe`, the CLI command is called `storyframe`:
 
 ```bash
 yarn add -D @ph2ph/storyframe
 ```
 
-## Конфигурация
+## Configuration
 
-`storyframe.config.ts` (или `.mjs`) в корне проекта. Без файла выгрузка строит страницу на каждый раздел
-верхнего уровня каталога и сама находит наборы по классу корня `<Префикс><Имя>-root`.
+`storyframe.config.ts` (or `.mjs`) in the project root. Without the file the export builds a page for every
+top-level section of the catalog and finds component sets on its own by the root class `<Prefix><Name>-root`.
 
 ```ts
 import { defineConfig } from '@ph2ph/storyframe/config'
 
 export default defineConfig({
-  // Пути - от корня проекта; ниже значения по умолчанию.
+  // Paths are relative to the project root; the values below are the defaults.
   storybook: 'storybook-static',
   out: 'storybook-static/figma-data',
   workDir: '.storyframe',
-  // Модуль темы: без него выгрузка идёт без переменных и стилей.
+  // Theme module: without it the export runs without variables and styles.
   theme: './storyframe.theme.ts',
   storyUrl: 'https://storybook.example.com',
   pages: [
@@ -51,7 +52,7 @@ export default defineConfig({
     { id: 'icons', name: 'Иконки', include: ['Компоненты/Иконки'] },
   ],
   exclude: ['Внутреннее'],
-  skip: { Modal: 'портал: содержимое рисуется вне корня истории' },
+  skip: { Modal: 'portal: the content is rendered outside the story root' },
   components: [
     {
       id: 'Button',
@@ -67,21 +68,21 @@ export default defineConfig({
       label: true,
     },
   ],
-  unboundExceptions: { Button: 'подложка contained - производный цвет darken(main)' },
+  unboundExceptions: { Button: 'contained background is a derived color darken(main)' },
   layout: { maxWidth: 1980 },
 })
 ```
 
-`.storyframe/` стоит добавить в `.gitignore`.
+`.storyframe/` should be added to `.gitignore`.
 
-## Тема
+## Theme
 
-Модуль темы отдаёт экспортом по умолчанию тему в формате storyframe (тип `IStoryframeTheme` из
-`@ph2ph/storyframe/config`) - объект или функцию, можно асинхронную. Значения в CSS, как их пишет тема компонентов:
-цвета светлого и тёмного режима, числа скруглений и отступов, стили текста, тени, свечение полотна, шрифты и
-роли оформления плагина.
+The default export of the theme module is a theme in the storyframe format (the `IStoryframeTheme` type from
+`@ph2ph/storyframe/config`): an object or a function, possibly async. Values are in CSS, as the component theme
+writes them: light and dark mode colors, corner radius and spacing numbers, text styles, shadows, the canvas glow,
+fonts and the plugin decoration roles.
 
-Для MUI формат строит адаптер:
+For MUI the format is built by an adapter:
 
 ```ts
 import { muiTheme } from '@ph2ph/storyframe/mui'
@@ -96,49 +97,50 @@ export default () =>
     shadowNames: { 1: 'soft', 2: 'raised' },
     extraTypography: [{ prefix: 'mono', fontFamily: '"JetBrains Mono", monospace', variants: ['body2'] }],
     canvas: 'palette.background.gradient',
-    describe: (address) => (address === 'palette.primary.main' ? 'Цвет действий' : undefined),
+    describe: (address) => (address === 'palette.primary.main' ? 'Action color' : undefined),
   })
 ```
 
-Роли оформления (`canvas`, `text`, `textSecondary`, `textDisabled`, `divider`, `title`, `heading`,
-`subheading`, `body`, `caption`) - адреса токенов, которыми плагин рисует полотно, подписи и рамки
-документации. У адаптера MUI они по умолчанию указывают на `palette.background.default`, `palette.text.*`,
-`palette.divider` и варианты `typography`; опция `roles` их переопределяет.
+Decoration roles (`canvas`, `text`, `textSecondary`, `textDisabled`, `divider`, `title`, `heading`,
+`subheading`, `body`, `caption`) are token paths the plugin uses to draw the canvas, labels and documentation
+frames. In the MUI adapter they point by default to `palette.background.default`, `palette.text.*`,
+`palette.divider` and `typography` variants; the `roles` option overrides them.
 
-Соглашения проекта о токенах тоже приходят из темы, ядро адресов не разбирает:
+Project token conventions also come from the theme, the core does not parse token paths:
 
-- `code` - как токен пишут в коде (`theme.palette.primary.main`, `var(--color-primary)`): подсказка в описании
-  и синтаксис кода переменной в Dev Mode;
-- `group` и `priority` (цвета) - выбор среди токенов с одинаковыми значениями: меньший приоритет для роли
-  краски (`fill`, `text`, `stroke`) побеждает, при равных - группа соседнего слоя, затем короче адрес;
-- `text` (цвета) - цвет текста: переменная предлагается тексту и фигурам, но не заливке фреймов;
-- `circle` (скругления) - скругление «до круга»: привязывается к углам не меньше половины меньшей стороны.
+- `code`: how the token is written in code (`theme.palette.primary.main`, `var(--color-primary)`): a hint in the
+  description and the variable code syntax in Dev Mode;
+- `group` and `priority` (colors): the choice among tokens with equal values: the lower priority for the paint
+  role (`fill`, `text`, `stroke`) wins, on a tie the group of the neighboring layer, then the shorter token path;
+- `text` (colors): a text color: the variable is offered to text and shapes, but not to frame fills;
+- `circle` (corner radii): the full-circle corner radius: it binds to corners not smaller than half of the
+  shorter side.
 
-Адаптер MUI заполняет их по соглашениям MUI (`MUI_COLOR_PRIORITY`, `MUI_TEXT_COLOR`). Палитра с расширениями
-передаёт свои списки опциями `colorPriority` и `textColor`, ключ скругления «до круга» - опцией
-`circleRadius`.
+The MUI adapter fills them by MUI conventions (`MUI_COLOR_PRIORITY`, `MUI_TEXT_COLOR`). A palette with extensions
+passes its own lists via the `colorPriority` and `textColor` options, and the full-circle corner radius key via
+the `circleRadius` option.
 
-## Команды
+## Commands
 
-Команда работает в папке проекта:
+The command runs in the project folder:
 
 ```bash
-storyframe export [--only <подстрока>] [--tabs 4]  # выгрузка в <out>: kit.json, kit.zip, index.json
-storyframe export --shots [папка]                  # то же плюс эталонные PNG для сверки
-storyframe serve                                   # сборка Storybook с CORS на localhost:6009
-storyframe shots-server                            # приёмник снимков из плагина на localhost:6010
-storyframe emulate [--only <подстрока>]            # эмуляция плагина в браузере: снимки слоёв kit.json
-storyframe compare                                 # сверка снимков Figma (или эмуляции) с эталонами
+storyframe export [--only <substring>] [--tabs 4]  # export into <out>: kit.json, kit.zip, index.json
+storyframe export --shots [folder]                 # the same plus reference PNGs for comparison
+storyframe serve                                   # Storybook static build with CORS on localhost:6009
+storyframe shots-server                            # receiver of screenshots from the plugin on localhost:6010
+storyframe emulate [--only <substring>]            # plugin emulation in the browser: screenshots of kit.json layers
+storyframe compare                                 # comparison of Figma (or emulation) screenshots with references
 ```
 
-`--only` выгружает часть каталога для проверки. Такую выгрузку не применяйте к рабочему файлу Figma: папки и
-пункты, которых в ней нет, плагин уберёт (наборы из них переедут в «Устаревшее»).
+`--only` exports a part of the catalog for checking. Do not apply such an export to the working Figma file: the
+plugin removes the folders and items missing from it (their component sets move to Deprecated, «Устаревшее»).
 
-Съёмка держит открытыми `--tabs` вкладок Chrome; на машине без запаса памяти берите `--tabs 2`.
+Capture keeps `--tabs` Chrome tabs open; on a machine without spare memory use `--tabs 2`.
 
-## Блок «Варианты» в Storybook
+## The Variants block in Storybook
 
-Нужны `@storybook/addon-docs` и аддон `storybook-addon-pseudo-states` (наведение и фокус в ячейках).
+Requires `@storybook/addon-docs` and the `storybook-addon-pseudo-states` addon (hover and focus in cells).
 
 ```tsx
 // .storybook/preview.tsx
@@ -149,7 +151,7 @@ export default {
   parameters: { docs: { page: createDocsPage(config) } },
   decorators: [
     (Story, context) => {
-      // Ячейке матрицы не нужны поля и фон отдельной истории.
+      // A matrix cell does not need the padding and background of a standalone story.
       const cell = isVariantsCell(context.parameters)
       return (
         <div style={{ padding: cell ? 0 : 24 }}>
@@ -161,33 +163,33 @@ export default {
 }
 ```
 
-Свою страницу документации можно собрать из блока `Variants` с пропом `config`.
+A custom docs page can be assembled from the `Variants` block with the `config` prop.
 
-## Плагин Figma
+## The Figma plugin
 
-Плагин разрабатывается в репозитории `storyframe-plugin`: там его сборка, тесты и инструкция для дизайнера.
-Этот пакет отдаёт плагину общий код тремя точками входа:
+The plugin is developed in the `storyframe-plugin` repository: its build, tests and the designer guide live
+there. This package gives the plugin shared code through three entry points:
 
-- `@ph2ph/storyframe/format`: типы формата выгрузки и `SCHEMA_VERSION`;
-- `@ph2ph/storyframe/variants`: подписи осей и состояний матрицы вариантов, общие для Figma и блока
-  «Варианты»;
-- `@ph2ph/storyframe/zip`: писатель ZIP, которым плагин собирает свой архив.
+- `@ph2ph/storyframe/format`: the export format types and `SCHEMA_VERSION`;
+- `@ph2ph/storyframe/variants`: axis and state labels of the variant matrix, shared by Figma and the Variants
+  block;
+- `@ph2ph/storyframe/zip`: the ZIP writer the plugin uses to assemble its archive.
 
-Формат выгрузки меняется вместе: `app/export/capture/types.ts`, `schema.mjs` и код плагина. Несовместимое
-изменение поднимает `SCHEMA_VERSION`, и плагин отказывается применять выгрузку другой схемы.
+The export format changes in lockstep across `app/export/capture/types.ts`, `schema.mjs` and the plugin code. An
+incompatible change bumps `SCHEMA_VERSION`, and the plugin refuses to apply an export of another schema.
 
-## Разработка
+## Development
 
 ```bash
-yarn test          # vitest: сборщик, конвертер DOM, адаптер MUI
-yarn typecheck     # tsc по пакету
+yarn test          # vitest: exporter, DOM converter, MUI adapter
+yarn typecheck     # tsc over the package
 yarn lint
 yarn format
 ```
 
-Проверка плагина на настоящей выгрузке проекта живёт в репозитории `storyframe-plugin`.
+Checking the plugin against a real project export lives in the `storyframe-plugin` repository.
 
-## Лицензия
+## License
 
-MIT, текст в файле [LICENSE](LICENSE). Пакет можно использовать, менять и распространять в любых проектах,
-в том числе коммерческих, при сохранении уведомления об авторских правах.
+MIT, the text is in the [LICENSE](LICENSE) file. The package can be used, modified and distributed in any
+projects, including commercial ones, as long as the copyright notice is kept.

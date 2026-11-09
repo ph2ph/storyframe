@@ -1,7 +1,8 @@
 /*
- * Съёмка компонентов для выгрузки: статическая сборка каталога в headless Chrome, конвертер DOM → слои
- * внедрён в вкладку, аргументы «Базовой» истории перебираются через канал Storybook без перезагрузки,
- * режимы переключаются глобалом `mode`, состояния - `CSS.forcePseudoState` по CDP, фокусом и аргументами.
+ * Component capture for the export: the Storybook static build of the catalog in headless Chrome, the DOM →
+ * layers converter injected into the tab, the "Basic" story's args iterated through the Storybook channel
+ * without reloads, modes switched by the `mode` global, states by `CSS.forcePseudoState` over CDP, by focus
+ * and by args.
  */
 
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
@@ -13,10 +14,11 @@ import { findRootSelector } from './discover.mjs'
 
 const VIEWPORT = { width: 1280, height: 900 }
 const MODES = ['light', 'dark']
-// Срок перерисовки после смены аргументов: обычно она укладывается в десятые доли секунды, но под нагрузкой
-// четырёх вкладок изредка дольше пяти секунд - и снимок брал бы цвета прежнего состояния.
+// Re-render deadline after an args change: usually it fits in tenths of a second, but under the load of four
+// tabs it occasionally takes longer than five seconds, and the screenshot would take the colors of the previous
+// state.
 const RENDER_TIMEOUT_MS = 15000
-/** Аргументы, которые MUI держит во внутреннем состоянии (`useControlled`): смена требует перемонтирования. */
+/** Args that MUI keeps in internal state (`useControlled`): changing them requires a remount. */
 const STATEFUL_ARGS = new Set([
   'checked',
   'defaultChecked',
@@ -28,7 +30,7 @@ const STATEFUL_ARGS = new Set([
   'selected',
 ])
 
-/** Конвертер одним файлом для внедрения в страницу. */
+/** The converter as a single file for injection into the page. */
 export async function bundleConverter() {
   const result = await build({
     entryPoints: [path.join(import.meta.dirname, 'capture/index.ts')],
@@ -41,11 +43,11 @@ export async function bundleConverter() {
   return result.outputFiles[0].text
 }
 
-/** Аргументы и список значений из `argTypes` истории - без навигации, из стора превью. */
+/** Args and value lists from the story's `argTypes`, without navigation, from the preview store. */
 function readStoryArgTypes(win, storyId) {
   return win.__STORYBOOK_PREVIEW__.storyStore.loadStory({ storyId }).then((story) => ({
-    // Описание компонента - стандартный параметр Storybook (`docs.description.component`, его же показывает
-    // страница документации).
+    // The component description is a standard Storybook parameter (`docs.description.component`, the docs
+    // page shows the same one).
     description: story.parameters?.docs?.description?.component ?? '',
     initialArgs: Object.fromEntries(
       Object.entries(story.initialArgs ?? {}).filter(
@@ -58,7 +60,7 @@ function readStoryArgTypes(win, storyId) {
         {
           options: argType.options ?? null,
           control: argType.control?.type ?? argType.control ?? null,
-          // Описание пропа из docgen: плагин подписывает им ось набора.
+          // The prop description from docgen: the Figma plugin labels the component set's axis with it.
           description: typeof argType.description === 'string' ? argType.description : '',
         },
       ]),
@@ -67,8 +69,8 @@ function readStoryArgTypes(win, storyId) {
 }
 
 /**
- * Перерисовка истории с новыми аргументами и перемонтирование: без него состояние контролов MUI
- * (`useControlled`, ripple, фокус) пережило бы смену аргументов. Ждёт событие рендера и два кадра.
+ * Re-renders the story with new args and remounts it: without the remount, the MUI controls' state
+ * (`useControlled`, ripple, focus) would survive the args change. Waits for the render event and two frames.
  */
 function updateArgs(win, storyId, args, timeoutMs, remount) {
   const channel = win.__STORYBOOK_PREVIEW__.channel
@@ -78,9 +80,9 @@ function updateArgs(win, storyId, args, timeoutMs, remount) {
   const rendered = once('storyRendered')
   channel.emit('resetStoryArgs', { storyId })
   channel.emit('updateStoryArgs', { storyId, updatedArgs: args })
-  // Сброс и новые аргументы дают два рендера, и событие первого (со сброшенными аргументами) может прийти
-  // раньше второго: снимок взял бы промежуточное состояние. Ждём, пока в сторе нужные аргументы, а текущий
-  // рендер завершён.
+  // The reset and the new args produce two renders, and the event of the first one (with the reset args) may
+  // arrive before the second: the screenshot would take the intermediate state. Wait until the store holds the
+  // wanted args and the current render is finished.
   const preview = win.__STORYBOOK_PREVIEW__
   const settled = () =>
     new Promise((resolve) => {
@@ -140,12 +142,13 @@ function captureIn(win, selector, name) {
 }
 
 /**
- * Сессия съёмки: браузер, статический сервер и вкладки. `shoot(job)` снимает один образец во всех
- * состояниях и режимах. Закрывать `close()`.
+ * Capture session: the browser, the static server and the tabs. `shoot(job)` captures one sample in all
+ * states and modes. Close with `close()`.
  */
 /**
- * Снимок корня истории как PNG в масштабе 2 на белом фоне: эталон для сверки с экспортом из Figma
- * (`compare.mjs`). Фон страницы на время снимка гасится, чтобы обе стороны сравнивались на белом.
+ * Screenshot of the story root as a PNG at scale 2 on a white background: the reference for comparison with
+ * the export from Figma (`compare.mjs`). The page background is suppressed for the duration of the screenshot
+ * so that both sides are compared on white.
  */
 async function shootReference(tab, selector) {
   const rect = await evaluate(
@@ -162,9 +165,9 @@ async function shootReference(tab, selector) {
         '[data-storyframe-show] { visibility: visible !important }',
       ].join('\n')
       doc.head.append(style)
-      // В эталоне только корень: предки другого размера (обёртка декоратора со свечением, поле вокруг
-      // украшения ввода) и соседи прячутся - в слоях Figma их нет. Предки того же бокса остаются: их облик
-      // корень наследует (`inheritAppearance`).
+      // Only the root is in the reference: ancestors of a different size (the decorator wrapper with the glow,
+      // the padding around an input adornment) and siblings are hidden, the Figma layers do not have them.
+      // Ancestors with the same box stay: the root inherits their appearance (`inheritAppearance`).
       const box = element.getBoundingClientRect()
       const near = (a, b) => Math.abs(a - b) <= 1
       const sameBox = (other) => {
@@ -220,9 +223,9 @@ async function shootReference(tab, selector) {
 }
 
 /**
- * Без переходов и анимаций, без полос прокрутки: стили читаются в конечном состоянии, а ширина историй не
- * скачет на ширину полосы (страница с ней и без неё давала варианты шириной 1185 и 1200 px). Полос нет и в
- * Figma.
+ * No transitions or animations, no scrollbars: styles are read in their final state, and the story width does
+ * not jump by the scrollbar width (the page with and without it gave variants 1185 and 1200 px wide). Figma
+ * has no scrollbars either.
  */
 const FREEZE_MOTION = `document.addEventListener('DOMContentLoaded', () => {
   const style = document.createElement('style')
@@ -247,9 +250,9 @@ export async function createCaptureSession({ staticDir, tabs = 4, log = () => {}
   }
 
   /**
-   * Псевдокласс на корне образца по CDP. Возвращает nodeId: снимать состояние нужно с ним же - новый
-   * `DOM.getDocument` выдаёт новые id, и сброс по ним до элемента не доходил (hover оставался на следующих
-   * образцах, disabled снимался с цветами наведения).
+   * Pseudo-class on the sample root over CDP. Returns the nodeId: the state must be released with the same
+   * one, a new `DOM.getDocument` hands out new ids, and the reset by them did not reach the element (hover
+   * stayed on the following samples, disabled was captured with hover colors).
    */
   async function forcePseudo(tab, selector, classes) {
     const { root } = await tab.send('DOM.getDocument', { depth: 0 })
@@ -274,15 +277,15 @@ export async function createCaptureSession({ staticDir, tabs = 4, log = () => {}
     )
   }
 
-  /** Вкладка с открытой историей в нужном режиме; одна история на вкладку, чтобы не перезагружать. */
+  /** A tab with the story open in the wanted mode; one story per tab to avoid reloads. */
   async function prepare(slot, storyId, mode) {
     if (slot.storyId !== storyId) {
       slot.storyId = null
       try {
         await openStory(chrome.cdp, slot.tab, origin, storyId, mode, storyId)
       } catch (error) {
-        // Под нагрузкой соседних вкладок рендер истории изредка не укладывается в срок, а модуль сборки
-        // не догружается («Failed to fetch dynamically imported module»): один повтор с перезагрузкой.
+        // Under the load of neighboring tabs the story render occasionally misses the deadline, and a module of
+        // the build fails to load ("Failed to fetch dynamically imported module"): one retry with a reload.
         if (!/не дождались|dynamically imported module/.test(String(error))) throw error
         log(`  ${storyId}: ${error.message}, повтор`)
         await openStory(chrome.cdp, slot.tab, origin, storyId, mode, storyId)
@@ -303,19 +306,19 @@ export async function createCaptureSession({ staticDir, tabs = 4, log = () => {}
       await prepare(slot, storyId, 'light')
       return evaluate(slot.tab, readStoryArgTypes, [storyId], `${storyId}: argTypes`)
     },
-    /** Забыть историю вкладки: следующая съёмка откроет её заново (после ошибки рендера история сломана). */
+    /** Forget the tab's story: the next capture opens it anew (after a render error the story is broken). */
     reset(slotIndex = 0) {
       pool[slotIndex % pool.length].storyId = null
     },
-    /** Селектор корня истории по классу `<Префикс><Имя>-root`, иначе `fallback` (`discover.mjs`). */
+    /** Story root selector by the `<Prefix><Name>-root` class, otherwise `fallback` (`discover.mjs`). */
     async resolveRoot(storyId, id, fallback, slotIndex = 0) {
       const slot = pool[slotIndex % pool.length]
       await prepare(slot, storyId, 'light')
       return evaluate(slot.tab, findRootSelector, [id, fallback], `${storyId}: корень`)
     },
     /**
-     * Снимает образец: `samples` - список `{ key, args, state: { pseudo?: string[], focus?: boolean } }`.
-     * Возвращает `{ key: { light, dark } }` с результатами конвертера.
+     * Captures a sample: `samples` is a list of `{ key, args, state: { pseudo?: string[], focus?: boolean } }`.
+     * Returns `{ key: { light, dark } }` with the converter results.
      */
     async shoot({ storyId, root: defaultRoot, name, samples, slotIndex = 0, shotsFolder = name }) {
       const slot = pool[slotIndex % pool.length]
@@ -326,7 +329,7 @@ export async function createCaptureSession({ staticDir, tabs = 4, log = () => {}
         for (const sample of samples) {
           const label = `${storyId} ${sample.key} (${mode})`
           const root = sample.root ?? defaultRoot
-          // Перемонтирование - только когда меняются аргументы внутреннего состояния: оно дорогое.
+          // Remount only when the internal state args change: it is expensive.
           const stateful = JSON.stringify(Object.entries(sample.args).filter(([arg]) => STATEFUL_ARGS.has(arg)))
           const remount = stateful !== '[]' && stateful !== previousStateful
           previousStateful = stateful
@@ -354,8 +357,8 @@ export async function createCaptureSession({ staticDir, tabs = 4, log = () => {}
           try {
             await attempt(remount)
           } catch (error) {
-            // Под нагрузкой соседних вкладок перемонтированная история изредка не успевает отрисоваться за срок:
-            // один повтор с перемонтированием и паузой.
+            // Under the load of neighboring tabs the remounted story occasionally fails to render within the
+            // deadline: one retry with a remount and a pause.
             if (!/Нет элемента|невидим или пуст/.test(String(error))) throw error
             log(`  ${label}: ${String(error.message ?? error).slice(0, 120)}, повтор`)
             await new Promise((resolve) => setTimeout(resolve, 500))

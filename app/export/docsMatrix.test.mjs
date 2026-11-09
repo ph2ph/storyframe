@@ -33,8 +33,8 @@ const CONFIG = {
   ],
 }
 
-describe('матрица вариантов для документации', () => {
-  it('найденный набор: оси из argTypes без inherit, флагов-состояний и модификаторов, состояния по флагам', () => {
+describe('variant matrix for the docs', () => {
+  it('discovered set: axes from argTypes without inherit, state flags and modifiers, states from flags', () => {
     const [matrix] = docsMatrices('Компоненты MUI/Inputs/Button', [BUTTON], CONFIG)
     expect(matrix.axes.map((axis) => [axis.name, axis.values])).toEqual([
       ['Variant', ['contained', 'outlined']],
@@ -43,7 +43,7 @@ describe('матрица вариантов для документации', ()
       ['State', ['default', 'hover', 'disabled']],
     ])
     expect(matrix.count).toBe(2 * 2 * 2 * 3)
-    // Столбцы - две младшие оси, как в Figma; строки - остальные.
+    // Columns are the two minor axes, as in Figma; rows are the rest.
     expect(matrix.columns.map((column) => column.key)).toEqual([
       'small|default',
       'small|hover',
@@ -66,7 +66,7 @@ describe('матрица вариантов для документации', ()
     expect(disabled).toMatchObject({ args: { disabled: true }, pseudo: [] })
   })
 
-  it('запись конфигурации главнее: фокус берёт аргументы записи, а не классы фокуса', () => {
+  it('the configuration entry takes precedence: focus takes the entry args, not the focus classes', () => {
     const story = { id: 'mui-inputs-textfield--basic', argTypes: { variant: select(['outlined', 'filled']) } }
     const [matrix] = docsMatrices('Компоненты MUI/Inputs/TextField', [story], CONFIG)
     expect(matrix.id).toBe('TextField')
@@ -83,13 +83,13 @@ describe('матрица вариантов для документации', ()
     ])
   })
 
-  it('пропущенный, исключённый и не попавший на страницы заголовок матриц не даёт', () => {
+  it('a skipped title, an excluded one and one that landed on no page yield no matrices', () => {
     expect(docsMatrices('Компоненты MUI/Feedback/Modal', [BUTTON], CONFIG)).toEqual([])
     expect(docsMatrices('Компоненты MUI/Utils/Popper', [BUTTON], CONFIG)).toEqual([])
     expect(docsMatrices('MCP/Подключение', [BUTTON], CONFIG)).toEqual([])
   })
 
-  it('ось без списка значений в argTypes - ошибка матрицы, а не исключение', () => {
+  it('an axis without a list of values in argTypes is a matrix error, not an exception', () => {
     const story = { id: 'mui-inputs-textfield--basic', argTypes: {} }
     const [matrix] = docsMatrices('Компоненты MUI/Inputs/TextField', [story], CONFIG)
     expect(matrix.error).toContain('variant')

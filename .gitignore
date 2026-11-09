@@ -7,7 +7,7 @@ node_modules/
 *.log
 .DS_Store
 .idea/
-# Рабочая папка storyframe: сборки плагина, снимки и сверки.
+# The storyframe working folder: plugin builds, screenshots and comparisons.
 .storyframe/
-# Внутренние документы проектирования и исследований: пока в репозиторий не входят.
+# Internal design and research documents: not part of the repository for now.
 docs/

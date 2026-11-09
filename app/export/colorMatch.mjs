@@ -1,8 +1,9 @@
 /*
- * Привязка цветов слоёв к токенам палитры по паре значений обоих режимов (design, решение 3): совпадение
- * только в одном режиме обманчиво, а пара однозначна. Несколько токенов с одной парой - выбор по приоритету
- * токена для роли краски и затем по длине адреса, порядок детерминирован. Приоритеты и группы задаёт тема
- * (адаптер): ядро не знает, как устроены адреса токенов проекта.
+ * Binding of layer colors to palette tokens by the pair of values of both modes (design, decision 3): a match
+ * in only one mode is misleading, while the pair is unambiguous. Several tokens with the same pair: the choice
+ * goes by token priority for the paint role and then by token path length, the order is deterministic.
+ * Priorities and groups are set by the theme (the adapter): the core does not know how the project's token
+ * paths are structured.
  */
 
 import { colorKey } from './capture/css.ts'
@@ -11,7 +12,7 @@ export function pairKey(light, dark) {
   return `${colorKey(light)}|${colorKey(dark)}`
 }
 
-/** Индекс пар палитры: ключ пары → токены в порядке выгрузки. */
+/** Index of palette pairs: pair key → tokens in export order. */
 export function buildPairIndex(colors) {
   const index = new Map()
   for (const token of colors) {
@@ -23,19 +24,20 @@ export function buildPairIndex(colors) {
   return index
 }
 
-/** Приоритет токена для роли (`text`, `stroke`, остальные роли - как заливка); без приоритета - после всех. */
+/** Token priority for a role (`text`, `stroke`, other roles count as fill); without a priority it goes last. */
 function rank(role, token) {
   return token.priority?.[role === 'text' || role === 'stroke' ? role : 'fill'] ?? Infinity
 }
 
 function compare(role) {
-  // `Infinity - Infinity` даёт NaN: он ложен, и сравнение переходит к длине адреса, как при равном приоритете.
+  // `Infinity - Infinity` yields NaN: it is falsy, so the comparison moves on to the path length, as with equal
+  // priority.
   return (a, b) => rank(role, a) - rank(role, b) || a.id.length - b.id.length || a.id.localeCompare(b.id)
 }
 
 function pick(candidates, role, prefer) {
   const sorted = [...candidates].sort(compare(role))
-  // При равном приоритете побеждает группа, к которой уже привязан сосед: подпись primary-кнопки -
+  // With equal priority the group a neighbor is already bound to wins: the label of a primary button is
   // `primary.contrastText`.
   const best = rank(role, sorted[0])
   const kin = prefer ? sorted.find((token) => rank(role, token) === best && (token.group ?? '') === prefer) : undefined
@@ -44,15 +46,16 @@ function pick(candidates, role, prefer) {
 }
 
 /**
- * Токен для пары цветов и роли (`fill` | `text` | `stroke`); `prefer` - группа токенов окружения.
- * Полупрозрачная пара с одинаковой альфой привязывается к непрозрачному токену с `opacity` заливки:
- * так в теме записаны подложки наведения `alpha(main, 0.08)`.
+ * Token for a color pair and a role (`fill` | `text` | `stroke`); `prefer` is the token group of the
+ * surroundings. A semi-transparent pair with the same alpha is bound to the opaque token with a fill `opacity`:
+ * this is how the theme writes hover backdrops, `alpha(main, 0.08)`.
  * @returns {{ token: string, group: string, opacity?: number, candidates: string[] } | null}
  */
 export function matchPair(index, light, dark, role, prefer) {
   const exact = index.get(pairKey(light, dark))
   if (exact && exact.length > 0) return pick(exact, role, prefer)
-  // Альфа режимов изредка расходится на сотые (`alpha(ink, .07)` против `alpha(white, .08)`): берётся светлая.
+  // The alpha of the modes occasionally differs in the hundredths (`alpha(ink, .07)` vs `alpha(white, .08)`):
+  // the light one is taken.
   if (light.a < 1 && Math.abs(light.a - dark.a) <= 0.02) {
     const opaque = index.get(pairKey({ ...light, a: 1 }, { ...dark, a: 1 }))
     if (opaque && opaque.length > 0) return { ...pick(opaque, role, prefer), opacity: light.a }

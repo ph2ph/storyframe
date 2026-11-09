@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "ignorePatterns": [".claude/", ".storyframe/"],
-  // Плагин import — только в корне: из override граф модулей не строится, и import/no-cycle циклов не находит.
+  // Import plugin only at the root: from an override no module graph is built and import/no-cycle finds no cycles.
   "plugins": ["typescript", "react", "import"],
   "categories": {
     "correctness": "off"
@@ -70,7 +70,7 @@
     "no-constant-binary-expression": ["error", { "checkRelationalComparisons": false }],
     "no-fallthrough": ["error", { "commentPattern": "falls?\\s?through" }],
     "no-irregular-whitespace": ["error", { "skipRegExps": false, "skipTemplates": false, "skipJSXText": false }],
-    // Объект опций, даже пустой, отключает в oxlint пропуск имён с префиксом `_`.
+    // An options object, even an empty one, turns off oxlint's skipping of names prefixed with `_`.
     "no-unused-vars": ["error", {}],
     "no-useless-assignment": "error",
     "import/first": "error"

@@ -1,19 +1,20 @@
 /*
- * План выгрузки по каталогу: что снимать на каждый пункт (наборы и истории фреймами) и как из результатов
- * съёмки собрать страницы Figma. Без браузера - его проверяют тесты.
+ * Export plan over the catalog: what to capture for each item (component sets and stories as frames) and how
+ * to assemble Figma pages from the capture results. It needs no browser, so tests check it.
  */
 
 import { titleSegments } from './config.mjs'
 import { pickStory } from './discover.mjs'
 
 /**
- * Работы выгрузки по каталогу: на пункт - наборы из конфигурации или найденный набор (если у истории есть
- * корень по классу) и истории фреймами. Пропущенный в конфигурации компонент не даёт ни набора, ни фреймов.
+ * Export jobs over the catalog: per item, the component sets from the configuration or a discovered set (if the
+ * story has a root by class) and stories as frames. A component skipped in the configuration yields neither a
+ * set nor frames.
  */
 export function planJobs(layout, storyEntries, config, only = null) {
   const titleOf = new Map(storyEntries.map((entry) => [entry.id, entry.title]))
   const items = []
-  // Найденные наборы не забирают id наборов конфигурации: экземпляры ищутся по id.
+  // Discovered sets do not take the ids of configuration sets: instances are looked up by id.
   const usedIds = new Set(config.components.map((entry) => entry.id))
   for (const { page, sections } of layout) {
     for (const section of sections) {
@@ -40,15 +41,16 @@ export function planJobs(layout, storyEntries, config, only = null) {
             auto: true,
           })
         }
-        // «Базовая» история набора самого компонента пункта - это и есть набор. История показывает больше
-        // набора, если набор снят с вложенного компонента (MiniDrawerItem в MiniDrawer) или с составной
-        // истории без «Базовой» (ListItemIcon «В кнопке и в строке»): тогда она идёт ещё и фреймом.
+        // The "Basic" story of the item's own component set is the set itself. A story shows more than the set
+        // when the set is captured from a nested component (MiniDrawerItem in MiniDrawer) or from a composite
+        // story without a "Basic" one (ListItemIcon "In a button and in a row"): then it also goes as a frame.
         const bases = new Set(
           components
             .filter((entry) => entry.id === id && entry.storyId.endsWith('--basic'))
             .map((entry) => entry.storyId),
         )
-        // Истории со сценарием `play` повторяют базовую и меняют её состояние кликами - в файл не идут.
+        // Stories with a `play` scenario repeat the basic one and change its state with clicks: they do not go
+        // into the file.
         const frames = skipped
           ? []
           : stories.filter((entry) => !bases.has(entry.id) && !(entry.tags ?? []).includes('play-fn'))
@@ -59,7 +61,7 @@ export function planJobs(layout, storyEntries, config, only = null) {
   return items
 }
 
-/** Страницы выгрузки из плана и результатов съёмки: пустые пункты и разделы не попадают. */
+/** Export pages from the plan and capture results: empty items and sections are left out. */
 export function buildPages(plan, results, storyUrl) {
   const pages = []
   for (const planned of plan) {
@@ -69,7 +71,7 @@ export function buildPages(plan, results, storyUrl) {
       (id) => results.stories.has(id),
     )
     if (!component && storyIds.length === 0) continue
-    // Остальные наборы пункта (несколько записей конфигурации на одну историю) - отдельными пунктами.
+    // The item's other sets (several configuration entries for one story) become separate items.
     const extra = planned.components
       .map((entry) => results.components.get(entry.id))
       .filter((candidate) => candidate && candidate !== component)

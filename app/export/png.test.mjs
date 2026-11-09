@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { decodePng, encodePng } from './png.mjs'
 
 describe('png', () => {
-  it('кодирует и читает RGBA без потерь', () => {
+  it('encodes and reads RGBA losslessly', () => {
     const width = 3
     const height = 2
     const data = new Uint8Array(width * height * 4).map((_, i) => (i * 37) % 256)
@@ -12,7 +12,7 @@ describe('png', () => {
     expect([...decoded.data]).toEqual([...data])
   })
 
-  it('отвергает не PNG', () => {
+  it('rejects a non-PNG', () => {
     expect(() => decodePng(Buffer.from('hello'))).toThrow('Не PNG')
   })
 })

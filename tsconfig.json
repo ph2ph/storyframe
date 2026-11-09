@@ -6,7 +6,7 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "types": ["vite/client"],
-    // `.ts` в импортах: выгрузку исполняет Node с вырезанием типов, а ему нужен полный путь к файлу.
+    // `.ts` in imports: the export is run by Node with type stripping, and it needs the full file path.
     "allowImportingTsExtensions": true,
     "strict": true,
     "skipLibCheck": true,

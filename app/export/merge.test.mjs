@@ -7,7 +7,7 @@ const BLUSH = { r: 0.8902, g: 0.5176, b: 0.4941, a: 1 }
 const WHITE = { r: 1, g: 1, b: 1, a: 1 }
 const CHARCOAL = { r: 0.102, g: 0.102, b: 0.102, a: 1 }
 
-// Группы и приоритеты - как их задаёт адаптер MUI (`MUI_COLOR_PRIORITY`): ядро адресов не разбирает.
+// Groups and priorities as the MUI adapter sets them (`MUI_COLOR_PRIORITY`): the core does not parse token paths.
 const COLORS = [
   {
     id: 'palette.primary.main',
@@ -87,8 +87,8 @@ function text(color) {
   }
 }
 
-describe('сведение режимов и токены', () => {
-  it('пара совпала в обоих режимах - токен; совпадение в одном режиме не привязывается', () => {
+describe('merging modes and tokens', () => {
+  it('a pair matched in both modes becomes a token; a match in one mode only is not bound', () => {
     const index = buildPairIndex(COLORS)
     const report = createMergeReport()
     const merged = mergeTrees(index, report, 'Button', frame(INK, [text(WHITE)]), frame(BLUSH, [text(CHARCOAL)], true))
@@ -97,7 +97,7 @@ describe('сведение режимов и токены', () => {
     expect(merged.children[0].color).toEqual({ token: 'palette.primary.contrastText' })
     expect(report.unbound.size).toBe(0)
 
-    // Полупрозрачная подложка `alpha(primary.main, 0.08)` - токен с прозрачностью заливки.
+    // A translucent backdrop `alpha(primary.main, 0.08)` is a token with fill opacity.
     const soft = createMergeReport()
     const faded = mergeTrees(index, soft, 'Button', frame({ ...INK, a: 0.08 }, []), frame({ ...BLUSH, a: 0.08 }, []))
     expect(faded.fills[0].color).toEqual({ token: 'palette.primary.main', opacity: 0.08 })
@@ -108,7 +108,7 @@ describe('сведение режимов и токены', () => {
     expect([...lonely.unbound.values()][0]).toMatchObject({ count: 2 })
   })
 
-  it('роль решает неоднозначность: белый на поверхности - фон для заливки, контрастный текст для текста', () => {
+  it('the role resolves ambiguity: white on a surface is background for a fill, contrast text for text', () => {
     const index = buildPairIndex(COLORS)
     expect(matchPair(index, WHITE, CHARCOAL, 'fill').token).toBe('palette.background.paper')
     expect(matchPair(index, WHITE, CHARCOAL, 'text').token).toBe('palette.primary.contrastText')
@@ -117,7 +117,7 @@ describe('сведение режимов и токены', () => {
     expect([...report.ambiguous.values()][0]).toMatchObject({ chosen: 'palette.background.paper' })
   })
 
-  it('приоритеты и группы берутся из темы: адреса без точек и без схемы MUI', () => {
+  it('priorities and groups come from the theme: token paths without dots and without the MUI scheme', () => {
     const SOFT = { r: 0.96, g: 0.96, b: 0.96, a: 1 }
     const DEEP = { r: 0.15, g: 0.15, b: 0.15, a: 1 }
     const index = buildPairIndex([
@@ -133,14 +133,14 @@ describe('сведение режимов и токены', () => {
       },
       { id: 'accent', name: 'accent', light: SOFT, dark: DEEP, description: '', group: 'accent' },
     ])
-    // Приоритет решает раньше длины адреса; без приоритета - короче адрес, затем по алфавиту.
+    // Priority decides before path length; without a priority, the shorter path wins, then alphabetical order.
     expect(matchPair(index, SOFT, DEEP, 'fill')).toMatchObject({ token: 'secondary', group: 'secondary' })
     expect(matchPair(index, SOFT, DEEP, 'text').candidates).toEqual(['muted', 'accent', 'secondary'])
-    // При равном приоритете побеждает группа соседа.
+    // With equal priority the neighbor's group wins.
     expect(matchPair(index, SOFT, DEEP, 'text', 'accent').token).toBe('accent')
   })
 
-  it('пересчитанный яркостью цвет остаётся литералом, структурное расхождение - в отчёт', () => {
+  it('a color recomputed by brightness stays a literal, a structure mismatch goes to the report', () => {
     const index = buildPairIndex(COLORS)
     const report = createMergeReport()
     const hover = frame(INK, [])
@@ -151,7 +151,7 @@ describe('сведение режимов и токены', () => {
     expect(report.mismatches).toHaveLength(1)
   })
 
-  it('радиусы привязываются к токенам shape, круг - к circle', () => {
+  it('radii are bound to shape tokens, a circle to circle', () => {
     const numbers = [
       { id: 'shape.borderRadiusMd', name: 'radius/md', value: 11, scope: 'radius', description: '' },
       {

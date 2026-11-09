@@ -10,8 +10,8 @@ const BUTTON_ARGTYPES = {
   size: { options: ['small', 'medium', 'large'] },
 }
 
-describe('матрица вариантов', () => {
-  it('кнопка: произведение осей без inherit и с осью State', () => {
+describe('variant matrix', () => {
+  it('button: product of axes without inherit and with the State axis', () => {
     const button = REGISTRY.find((entry) => entry.id === 'Button')
     const { axes, samples } = buildMatrix(button, BUTTON_ARGTYPES)
     expect(axes.map((axis) => axis.name)).toEqual(['Variant', 'Color', 'Size', 'State'])
@@ -24,7 +24,7 @@ describe('матрица вариантов', () => {
     expect(checkMatrix(button, samples)).toEqual([])
   })
 
-  it('компонент без осей получает ось State с единственным состоянием', () => {
+  it('a component without axes gets the State axis with a single state', () => {
     const entry = { id: 'Plain', axes: [], states: ['default'], root: '.plain' }
     const { axes, samples } = buildMatrix(entry, {})
     expect(axes).toEqual([{ name: 'State', values: ['default'] }])
@@ -33,7 +33,7 @@ describe('матрица вариантов', () => {
     expect(samples[0].variant).toEqual({ State: 'default' })
   })
 
-  it('булева ось даёт аргументы из реестра, большая матрица - нарушение', () => {
+  it('a boolean axis takes args from the registry, an oversized matrix is a violation', () => {
     const checkbox = REGISTRY.find((entry) => entry.id === 'Checkbox')
     const { samples } = buildMatrix(checkbox, {
       variant: { options: ['filled', 'outlined'] },

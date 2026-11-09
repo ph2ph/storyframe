@@ -1,6 +1,7 @@
 /*
- * Матрица вариантов компонента: декартово произведение осей реестра на значениях из `argTypes` истории
- * плюс ось `State`. Каждая комбинация - образец для съёмки с аргументами истории и способом состояния.
+ * Variant matrix of a component: the Cartesian product of the registry axes over values from the story's
+ * `argTypes` plus the `State` axis. Each combination is a sample for capture with story args and a way to
+ * reproduce the state.
  */
 
 import { STATES } from './registry.mjs'
@@ -21,7 +22,7 @@ function axisArgs(axis, value) {
   return args
 }
 
-/** Корень образца для значения оси, если ось его переопределяет (вкладка: выбранная или соседняя). */
+/** Sample root for an axis value when the axis overrides it (a tab: the selected one or its neighbor). */
 function axisRoot(axis, value) {
   return 'values' in axis ? (axis.values[value].root ?? null) : null
 }
@@ -33,8 +34,8 @@ function axisRoot(axis, value) {
  */
 export function buildMatrix(entry, argTypes) {
   const axes = entry.axes.map((axis) => ({ name: axis.name, values: axisValues(axis, argTypes) }))
-  // Набору Figma нужно хотя бы одно свойство: компонент без осей получает State даже с одним состоянием,
-  // иначе его вариант называется пустой строкой и набор считается ошибочным.
+  // A Figma component set needs at least one property: a component without axes gets State even with a single
+  // state, otherwise its variant is named with an empty string and the set is considered broken.
   const withState = entry.states.length > 1 || axes.length === 0
   if (withState) axes.push({ name: 'State', values: entry.states })
   let combos = [{}]
@@ -62,7 +63,7 @@ export function variantKey(variant, axes) {
   return axes.map((axis) => `${axis.name}=${variant[axis.name]}`).join(', ')
 }
 
-/** Проверки матрицы: размер и дубли. Возвращает список нарушений. */
+/** Matrix checks: size and duplicates. Returns the list of violations. */
 export function checkMatrix(entry, samples) {
   const problems = []
   if (samples.length > MAX_VARIANTS)

@@ -1,8 +1,8 @@
 /*
- * Приёмник снимков из плагина Figma (`storyframe shots-server`): кнопка «Отправить снимки» в плагине сначала
- * шлёт `POST /begin` (папка очищается), затем PNG каждого варианта и фрейма истории POST'ом на
- * `http://localhost:6010/shot/<папка>/<имя>.png`; файлы ложатся в `<workDir>/shots/figma/` для
- * `storyframe compare`. Только локально: ни авторизации, ни HTTPS.
+ * Receiver of screenshots from the Figma plugin (`storyframe shots-server`): the "Send screenshots" button in
+ * the plugin first sends `POST /begin` (the folder is cleared), then POSTs the PNG of every variant and story
+ * frame to `http://localhost:6010/shot/<folder>/<name>.png`; the files land in `<workDir>/shots/figma/` for
+ * `storyframe compare`. Local only: no authorization, no HTTPS.
  *
  *   storyframe shots-server [--port 6010] [--dir <workDir>/shots/figma]
  */
@@ -30,7 +30,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
       response.end()
       return
     }
-    // Начало отправки из плагина: снимки прошлого запуска (другие имена вариантов) сверке только мешают.
+    // The plugin starts a send: screenshots of the previous run (other variant names) only hinder the comparison.
     if (request.method === 'POST' && request.url === '/begin') {
       rmSync(dir, { recursive: true, force: true })
       mkdirSync(dir, { recursive: true })
@@ -64,6 +64,6 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
   })
   await new Promise((resolve) => server.listen(Number(values.port), resolve))
   process.stderr.write(`Приёмник снимков: http://localhost:${values.port}/shot/… → ${path.relative(root, dir)}\n`)
-  // Сервер работает до Ctrl+C.
+  // The server runs until Ctrl+C.
   return new Promise(() => {})
 }

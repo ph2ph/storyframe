@@ -51,8 +51,8 @@ const COMPONENTS = [
   },
 ]
 
-describe('сигнатуры классов', () => {
-  it('самая длинная сигнатура побеждает, при равных - вариант без состояния', () => {
+describe('class signatures', () => {
+  it('the longest signature wins, on a tie the variant without a state', () => {
     const index = buildSignatureIndex(COMPONENTS)
     const classes = [
       'MuiButtonBase-root',
@@ -70,7 +70,7 @@ describe('сигнатуры классов', () => {
     expect(matchSignature(index, classes, 'Button').entry).toBeNull()
   })
 
-  it('узлы паттерна становятся экземплярами с подписью, комбинации вне матрицы - в отчёт', () => {
+  it('pattern nodes become instances with a label, combinations outside the matrix go to the report', () => {
     const index = buildSignatureIndex(COMPONENTS)
     const tree = frame(
       ['MuiCard-root'],
@@ -96,7 +96,7 @@ describe('сигнатуры классов', () => {
     expect(outOfMatrix).toEqual(['Карточка /1: Button (MuiButton-root MuiButton-outlined)'])
   })
 
-  it('узел, отличающийся от варианта не подписью, остаётся слоями с причиной', () => {
+  it('a node differing from the variant not by the label stays as layers with the reason', () => {
     const index = buildSignatureIndex(COMPONENTS)
     const button = ['MuiButtonBase-root', 'MuiButton-root', 'MuiButton-contained', 'MuiButton-sizeMedium']
     const tree = frame(
@@ -115,7 +115,7 @@ describe('сигнатуры классов', () => {
     ])
   })
 
-  it('склеенный двойник варианта находится по своей сигнатуре и даёт экземпляр оставшегося варианта', () => {
+  it('a merged twin of a variant is found by its signature and yields an instance of the remaining variant', () => {
     const merged = {
       id: 'Bar',
       textProps: [],

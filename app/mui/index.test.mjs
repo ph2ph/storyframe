@@ -12,13 +12,14 @@ const light = createTheme({
 })
 const dark = createTheme({ palette: { mode: 'dark', primary: { main: '#e3847e' } } })
 
-describe('адаптер темы MUI', () => {
-  it('строит тему в формате storyframe из createTheme обоих режимов', () => {
+describe('MUI theme adapter', () => {
+  it('builds a theme in the storyframe format from createTheme of both modes', () => {
     const theme = muiTheme({ light, dark })
     expect(validateTheme(theme)).toEqual([])
     const primary = theme.colors.find((color) => color.id === 'palette.primary.main')
     expect(primary).toMatchObject({ name: 'primary/main', light: '#403e3c', dark: '#e3847e' })
-    // Лист только одной темы (градиент полотна) - цвет, не заданный в другом режиме; функции палитры не листья.
+    // A leaf of only one theme (the canvas gradient) is a color not set in the other mode; palette functions
+    // are not leaves.
     expect(theme.colors.find((color) => color.id === 'palette.background.gradient')).toMatchObject({
       light: 'radial-gradient(#fff, #000)',
       dark: null,
@@ -29,7 +30,7 @@ describe('адаптер темы MUI', () => {
     expect(theme.roles).toEqual(MUI_ROLES)
   })
 
-  it('числа: все числа shape по умолчанию, шаги spacing в px', () => {
+  it('numbers: all shape numbers by default, spacing steps in px', () => {
     const theme = muiTheme({ light })
     expect(
       theme.numbers.filter((number) => number.scope === 'radius').map((number) => [number.name, number.value]),
@@ -42,7 +43,7 @@ describe('адаптер темы MUI', () => {
     expect(named.numbers.map((number) => number.name)).toEqual(['radius/sm', 'spacing/1'])
   })
 
-  it('стили текста в px от rem, дополнительное семейство, шрифты по стилям', () => {
+  it('text styles in px from rem, an extra family, fonts from the styles', () => {
     const theme = muiTheme({
       light,
       extraTypography: [{ prefix: 'mono', fontFamily: '"JetBrains Mono", monospace', variants: ['body2'] }],
@@ -66,7 +67,7 @@ describe('адаптер темы MUI', () => {
     ])
   })
 
-  it('тени с именами, свечение полотна по адресу, описания и роли из опций', () => {
+  it('named shadows, canvas glow by path, descriptions and roles from options', () => {
     const theme = muiTheme({
       light,
       shadowNames: { 1: 'soft' },
@@ -79,13 +80,13 @@ describe('адаптер темы MUI', () => {
     expect(theme.canvas).toEqual({ light: 'radial-gradient(#fff, #000)', dark: 'radial-gradient(#fff, #000)' })
     expect(theme.colors.find((color) => color.id === 'palette.primary.main').description).toBe('Действия')
     expect(theme.roles.heading).toBe('typography.h6')
-    // Одинаковые тени под разными номерами - один стиль эффекта.
+    // Identical shadows under different indexes are a single effect style.
     expect(buildTokens(theme).tokens.effects.map((effect) => effect.name)).toEqual(['Shadow/soft', 'Shadow/2'])
   })
 })
 
-describe('соглашения MUI в адаптере', () => {
-  it('код, группа, приоритеты и цвета текста - по адресам палитры MUI', () => {
+describe('MUI conventions in the adapter', () => {
+  it('code, group, priorities and text colors follow the MUI palette paths', () => {
     const theme = muiTheme({ light, dark, circleRadius: 'borderRadiusSm' })
     const byId = new Map(theme.colors.map((color) => [color.id, color]))
     expect(byId.get('palette.primary.main')).toMatchObject({
@@ -106,21 +107,21 @@ describe('соглашения MUI в адаптере', () => {
     expect(theme.shadows[0].code).toBe('theme.shadows.1')
   })
 
-  it('палитра с расширениями задаёт свои приоритеты и цвета текста', () => {
+  it('a palette with extensions sets its own priorities and text colors', () => {
     const theme = muiTheme({
       light,
       colorPriority: { fill: [/\.light$/, /\.main$/] },
       textColor: /\.contrastText$/,
     })
     const main = theme.colors.find((color) => color.id === 'palette.primary.main')
-    // Список роли заменяется целиком, остальные роли - по умолчанию MUI.
+    // The role list is replaced as a whole, the other roles keep the MUI defaults.
     expect(main.priority).toEqual({ fill: 1, text: 2, stroke: 2 })
     expect(theme.colors.find((color) => color.id === 'palette.text.primary').text).toBe(false)
   })
 })
 
-describe('проверка темы', () => {
-  it('нарушения формата - путь и сообщение', () => {
+describe('theme validation', () => {
+  it('format violations give a path and a message', () => {
     const issues = validateTheme({ fonts: [], colors: [{ id: 'x' }], numbers: [], typography: [], shadows: [] })
     expect(issues).toHaveLength(1)
     expect(issues[0]).toMatch(/^colors\.0\.light: /)

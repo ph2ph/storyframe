@@ -1,30 +1,34 @@
 /*
- * Наборы, которые выгрузка находит в каталоге сама: «Базовая» история пункта становится набором, если в ней
- * есть корень компонента по классу `<Префикс><Имя>-root`. Оси - из `argTypes` истории (select со списком
- * значений и булевы флаги), состояния - по наличию флагов `disabled` и `error`. Правила общие для любого
- * каталога Storybook: знания о конкретной теме здесь нет, исключения с причинами живут в конфигурации.
+ * Component sets the export discovers in the catalog on its own: the item's "Basic" story becomes a set if it
+ * has a component root by the `<Prefix><Name>-root` class. Axes come from the story's `argTypes` (a select
+ * with a list of values and boolean flags), states from the presence of the `disabled` and `error` flags. The
+ * rules are common to any Storybook catalog: there is no knowledge of a specific theme here, exclusions with
+ * their reasons live in the configuration.
  */
 
-/** Предел матрицы найденного набора: лишние оси отбрасываются, флаги первыми, остальные с конца. */
+/** Matrix limit of a discovered component set: extra axes are dropped, flags first, the rest from the end. */
 export const AUTO_MAX_VARIANTS = 64
 
-/** Флаги-модификаторы поведения или растяжения до контейнера: внешний вид варианта они не задают. */
+/** Flags that modify behavior or stretching to the container: they do not define the variant's appearance. */
 const MODIFIER_FLAG = /^(disable|enable|keep|auto|resume|hide|full)/
-/** Флаги, которые снимаются состояниями (ось `State`), а не осями. */
+/** Flags captured as states (the `State` axis) rather than as axes. */
 const STATE_FLAGS = ['disabled', 'error']
-/** Значения осей, которые наследуют цвет от контекста и варианта не образуют. */
+/** Axis values that inherit the color from the context and do not form a variant. */
 const EXCLUDED_VALUES = ['inherit']
 
 function axisName(arg) {
   return arg.charAt(0).toUpperCase() + arg.slice(1)
 }
 
-/** «Базовая» история заголовка (`…--basic`), иначе первая. */
+/** The title's "Basic" story (`…--basic`), otherwise the first one. */
 export function pickStory(stories) {
   return stories.find((story) => story.id.endsWith('--basic')) ?? stories[0]
 }
 
-/** Оси из `argTypes`: select со списком значений (без `inherit`) и булевы флаги кроме состояний и модификаторов. */
+/**
+ * Axes from `argTypes`: a select with a list of values (without `inherit`) and boolean flags except states and
+ * modifiers.
+ */
 export function autoAxes(argTypes) {
   const axes = []
   for (const [arg, type] of Object.entries(argTypes)) {
@@ -38,7 +42,7 @@ export function autoAxes(argTypes) {
   return axes
 }
 
-/** Состояния: `hover` и `disabled` у компонентов с флагом `disabled`, `error` - с флагом `error`. */
+/** States: `hover` and `disabled` for components with the `disabled` flag, `error` for those with the `error` flag. */
 export function autoStates(argTypes) {
   const states = ['default']
   if (argTypes.disabled?.control === 'boolean') states.push('hover', 'disabled')
@@ -47,8 +51,8 @@ export function autoStates(argTypes) {
 }
 
 /**
- * Запись найденного набора с осями и состояниями по `argTypes`: матрица не больше `max`, лишние оси
- * отбрасываются (флаги первыми, затем списки с конца) и перечисляются в `dropped`.
+ * Entry of a discovered component set with axes and states from `argTypes`: the matrix is no larger than
+ * `max`, extra axes are dropped (flags first, then lists from the end) and listed in `dropped`.
  */
 export function resolveAutoEntry(entry, argTypes, max = AUTO_MAX_VARIANTS) {
   const states = autoStates(argTypes)
@@ -74,7 +78,7 @@ export function resolveAutoEntry(entry, argTypes, max = AUTO_MAX_VARIANTS) {
   }
 }
 
-/** Вариант из текста ошибки съёмки: пары `Ось=значение` перед `(light)` или `(dark)`. */
+/** The variant from a capture error message: `Axis=value` pairs before `(light)` or `(dark)`. */
 export function failedVariant(message) {
   const match = / ((?:[A-Za-z]+=[^,()]+)(?:, [A-Za-z]+=[^,()]+)*) \((?:light|dark)\)/.exec(message)
   if (!match) return null
@@ -86,7 +90,7 @@ export function failedVariant(message) {
   )
 }
 
-/** Значение оси по умолчанию - из аргументов истории; у `State` - `default`. */
+/** The axis default value, from the story args; for `State` it is `default`. */
 export function defaultValue(entry, axisName, initialArgs) {
   if (axisName === 'State') return 'default'
   const axis = entry.axes.find((candidate) => candidate.name === axisName)
@@ -96,9 +100,9 @@ export function defaultValue(entry, axisName, initialArgs) {
 }
 
 /**
- * Запись без одного значения оси или состояния: так найденный набор переживает значение, на котором
- * история падает (`multiple` без массива, цвет, которого нет в палитре). Ось с единственным оставшимся
- * значением убирается. `null`, если убирать нечего.
+ * The entry without one axis value or state: this is how a discovered component set survives a value on
+ * which the story fails (`multiple` without an array, a color missing from the palette). An axis with a single
+ * remaining value is removed. `null` if there is nothing to remove.
  */
 export function withoutValue(entry, axisName, value) {
   if (axisName === 'State') {
@@ -125,8 +129,9 @@ export function withoutValue(entry, axisName, value) {
 }
 
 /**
- * Выполняется во вкладке: селектор корня истории по классу `<Префикс><Имя>-root` (один заглавный префикс:
- * `Mui` или префикс компонентов проекта; `MuiOutlinedInput-root` для `Input` не подходит), первый в документе; иначе запасной.
+ * Runs in the tab: the story root selector by the `<Prefix><Name>-root` class (one capitalized prefix: `Mui`
+ * or the project's component prefix; `MuiOutlinedInput-root` does not fit `Input`), the first in the document;
+ * otherwise the fallback.
  */
 export function findRootSelector(win, id, fallback) {
   const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')

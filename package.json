@@ -1,7 +1,7 @@
 {
   "name": "@ph2ph/storyframe",
   "version": "0.1.0",
-  "description": "Дизайн-система в Figma из каталога Storybook: выгрузка историй и темы для плагина storyframe, блок «Варианты» для страниц документации Storybook",
+  "description": "Design system in Figma from a Storybook catalog: export of stories and theme for the storyframe Figma plugin, and the Variants block for Storybook docs pages",
   "type": "module",
   "license": "MIT",
   "author": "Ivan Starynkevich",

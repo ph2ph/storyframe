@@ -1,10 +1,10 @@
 /*
- * Матрицы вариантов для блока «Варианты» документации Storybook: те же наборы, оси и состояния, что строит
- * выгрузка в Figma (`plan.mjs` выбирает набор пункта, `discover.mjs` находит оси, `matrix.mjs` строит
- * сочетания). Без модулей Node: модуль работает в браузере на странице документации.
+ * Variant matrices for the Variants block of the Storybook docs: the same component sets, axes and states the
+ * export to Figma builds (`plan.mjs` picks the item's set, `discover.mjs` finds the axes, `matrix.mjs` builds
+ * the combinations). Without Node modules: the module runs in the browser on the docs page.
  *
- * Чего страница не повторяет: склейку одинаковых на вид значений (её считает выгрузка по снимкам - здесь
- * показаны все значения) и отказ от набора, у истории которого нет корня компонента по классу.
+ * What the page does not repeat: the merging of visually identical values (the export computes it from the
+ * screenshots, here all values are shown) and giving up on a set whose story has no component root by class.
  */
 
 import { normalizeConfig, placeTitle, resolvePages, titleSegments } from './catalog.mjs'
@@ -13,8 +13,8 @@ import { buildMatrix } from './matrix.mjs'
 import { columnCount } from './variants.ts'
 
 /**
- * `argTypes` подготовленной истории в виде, в каком их читает выгрузка (`readStoryArgTypes` в `capture.mjs`):
- * список значений и тип контрола строкой.
+ * `argTypes` of a prepared story in the form the export reads them (`readStoryArgTypes` in `capture.mjs`): the
+ * list of values and the control type as a string.
  */
 export function normalizeArgTypes(argTypes) {
   return Object.fromEntries(
@@ -25,7 +25,7 @@ export function normalizeArgTypes(argTypes) {
   )
 }
 
-/** Записи наборов пункта так, как их выбирает выгрузка (`planJobs`): конфигурация, иначе найденный набор. */
+/** The item's set entries as the export picks them (`planJobs`): the configuration, otherwise the discovered set. */
 function entriesOf(title, stories, config) {
   const own = config.components.filter((entry) => stories.some((story) => story.id === entry.storyId))
   if (own.length > 0) return own
@@ -36,14 +36,14 @@ function entriesOf(title, stories, config) {
   return [resolveAutoEntry({ id, storyId: story.id, root: null, axes: [], states: ['default'] }, argTypes)]
 }
 
-/** Классы аддона pseudo-states для обёртки ячейки: `:hover` (и фокус без своих аргументов) у потомков. */
+/** Pseudo-states addon classes for the cell wrapper: `:hover` (and focus without its own args) on descendants. */
 function pseudoClasses(state, stateArgs) {
   if (state.pseudo) return state.pseudo.map((pseudo) => `pseudo-${pseudo}-all`)
   if (state.focus && !stateArgs) return ['pseudo-focus-all', 'pseudo-focus-visible-all', 'pseudo-focus-within-all']
   return []
 }
 
-/** Сетка матрицы: столбцы - младшие оси, строки - остальные; ячейка - образец или `null`. */
+/** The matrix grid: columns are the minor axes, rows are the rest; a cell is a sample or `null`. */
 function gridOf(axes, samples) {
   const split = axes.length - columnCount(axes.length)
   const rowAxes = axes.slice(0, Math.max(0, split))
@@ -75,11 +75,11 @@ function gridOf(axes, samples) {
 }
 
 /**
- * Матрицы пункта каталога `title`. Заголовок вне файла Figma (раздел исключён или не попадает ни на одну
- * страницу) и пропущенный в конфигурации матриц не дают.
- * @param {string} title заголовок CSF-файла
- * @param {{ id: string, argTypes?: Record<string, object> }[]} stories истории заголовка в порядке файла
- * @param {object} [rawConfig] содержимое `storyframe.config.mjs`
+ * Matrices of the catalog item `title`. A title outside the Figma file (its section is excluded or does not
+ * land on any page) and one skipped in the configuration yield no matrices.
+ * @param {string} title the CSF file title
+ * @param {{ id: string, argTypes?: Record<string, object> }[]} stories the title's stories in file order
+ * @param {object} [rawConfig] contents of `storyframe.config.mjs`
  */
 export function docsMatrices(title, stories, rawConfig = {}) {
   const config = normalizeConfig(rawConfig)

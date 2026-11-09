@@ -1,6 +1,7 @@
 /*
- * Раскладка каталога Storybook по страницам Figma и нормализация конфигурации storyframe - без модулей Node:
- * её же использует блок «Варианты» документации Storybook в браузере. Файл конфигурации читает `config.mjs`.
+ * Layout of the Storybook catalog across Figma pages and normalization of the storyframe configuration,
+ * without Node modules: the Variants block of the Storybook docs uses it in the browser as well. The
+ * configuration file is read by `config.mjs`.
  */
 
 /**
@@ -24,7 +25,7 @@
 /** @returns {TConfig} */
 export function normalizeConfig(raw = {}) {
   return {
-    // Пути - от корня проекта (папки, где лежит конфигурация).
+    // Paths are relative to the project root (the folder holding the configuration).
     storybook: raw.storybook ?? 'storybook-static',
     out: raw.out ?? null,
     workDir: raw.workDir ?? '.storyframe',
@@ -35,12 +36,12 @@ export function normalizeConfig(raw = {}) {
     skip: raw.skip ?? {},
     components: raw.components ?? [],
     unboundExceptions: raw.unboundExceptions ?? {},
-    // Раскладку применяет плагин: без значения у него своё умолчание.
+    // The layout is applied by the Figma plugin: without a value it uses its own default.
     layout: raw.layout ?? null,
   }
 }
 
-/** Сегменты заголовка истории Storybook (`Компоненты MUI/Inputs/Button`). */
+/** Segments of a Storybook story title (`Компоненты MUI/Inputs/Button`). */
 export function titleSegments(title) {
   return title
     .split('/')
@@ -48,7 +49,7 @@ export function titleSegments(title) {
     .filter(Boolean)
 }
 
-/** Префикс покрывает заголовок по целым сегментам: `Компоненты` не покрывает `Компоненты MUI/…`. */
+/** A prefix covers a title by whole segments: `Компоненты` does not cover `Компоненты MUI/…`. */
 export function coversTitle(prefix, title) {
   const head = titleSegments(prefix)
   const segments = titleSegments(title)
@@ -56,9 +57,9 @@ export function coversTitle(prefix, title) {
 }
 
 /**
- * Страницы выгрузки: из конфигурации, иначе по разделам верхнего уровня в порядке каталога.
+ * Pages of the export: from the configuration, otherwise one per top-level section in catalog order.
  * @param {TConfig} config
- * @param {string[]} titles заголовки историй в порядке каталога
+ * @param {string[]} titles story titles in catalog order
  * @returns {TPage[]}
  */
 export function resolvePages(config, titles) {
@@ -74,9 +75,10 @@ export function resolvePages(config, titles) {
 }
 
 /**
- * Место заголовка каталога в файле: страница с самым длинным подходящим префиксом, раздел (папка каталога
- * под префиксом) и пункт (компонент). Заголовок без папки попадает в раздел с именем самого префикса
- * (`Компоненты/DataTable` - в «Компоненты»). `null` - заголовок исключён или не попал ни на одну страницу.
+ * Place of a catalog title in the file: the page with the longest matching prefix, the section (the catalog
+ * folder under the prefix) and the item (the component). A title without a folder goes to the section named
+ * after the prefix itself (`Компоненты/DataTable` goes to "Компоненты"). `null` means the title is excluded or
+ * did not land on any page.
  * @param {string} title
  * @param {TPage[]} pages
  * @param {string[]} exclude
@@ -96,14 +98,15 @@ export function placeTitle(title, pages, exclude = []) {
   const segments = titleSegments(title)
   const rest = segments.slice(best.depth)
   const item = rest.at(-1) ?? segments.at(-1)
-  // Пункты прямо под префиксом (Компоненты/DataTable, Гайдлайн/Палитра) - одна папка с именем раздела каталога.
+  // Items directly under the prefix (Компоненты/DataTable, Гайдлайн/Палитра) share one folder named after the
+  // catalog section.
   const section = rest.length > 1 ? rest.slice(0, -1).join('/') : best.group
   return { page: best.page, section, item }
 }
 
 /**
- * Раскладка каталога: страницы → разделы → пункты в порядке каталога.
- * @param {{ title: string }[]} entries истории index.json
+ * Catalog layout: pages → sections → items in catalog order.
+ * @param {{ title: string }[]} entries stories from index.json
  * @returns {{ page: TPage, sections: { id: string, title: string, items: { title: string, name: string }[] }[] }[]}
  */
 export function layoutCatalog(entries, config) {

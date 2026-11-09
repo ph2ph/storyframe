@@ -13,8 +13,8 @@ import {
   splitTopLevel,
 } from './css'
 
-describe('разбор CSS', () => {
-  it('цвета: hex, rgb, rgba, короткие формы, transparent', () => {
+describe('CSS parsing', () => {
+  it('colors: hex, rgb, rgba, short forms, transparent', () => {
     expect(parseColor('#403e3c')).toEqual({ r: 0.251, g: 0.2431, b: 0.2353, a: 1 })
     expect(parseColor('#fff')).toEqual({ r: 1, g: 1, b: 1, a: 1 })
     expect(parseColor('#00000080')?.a).toBeCloseTo(0.502, 3)
@@ -28,7 +28,7 @@ describe('разбор CSS', () => {
     expect(colorKey({ r: 0.251, g: 0.2431, b: 0.2353, a: 1 })).toBe('64,62,60,1')
   })
 
-  it('тени: несколько слоёв, inset, цвет в начале и в конце', () => {
+  it('shadows: several layers, inset, color first and last', () => {
     const effects = parseBoxShadow('inset 1px 2px 0 rgba(54, 50, 47, 0.2), rgb(0, 0, 0) 0px 2px 10px -1px')
     expect(effects).toHaveLength(2)
     expect(effects[0]).toMatchObject({ type: 'inner', offset: { x: 1, y: 2 }, blur: 0, spread: 0 })
@@ -36,7 +36,7 @@ describe('разбор CSS', () => {
     expect(parseBoxShadow('none')).toEqual([])
   })
 
-  it('радиусы, яркость, размытие, градиент, семейство', () => {
+  it('radii, brightness, blur, gradient, family', () => {
     expect(parseRadius('11px', 80, 32)).toBe(11)
     expect(parseRadius('50%', 24, 24)).toBe(12)
     expect(parseBrightness('brightness(1.08)')).toBe(1.08)
@@ -57,8 +57,8 @@ describe('разбор CSS', () => {
     expect(splitTopLevel('a, rgba(1, 2, 3, 0.5) b, c')).toEqual(['a', 'rgba(1, 2, 3, 0.5) b', 'c'])
   })
 
-  it('трансформация, свернувшая элемент: scale(0) и сжатие по одной оси, но не поворот', () => {
-    // translateY(-100%) scale(0) закрытой подсказки значения слайдера.
+  it('transform that collapsed the element: scale(0) and squeeze along one axis, but not rotation', () => {
+    // translateY(-100%) scale(0) of a closed slider value tooltip.
     expect(isCollapsedTransform('matrix(0, 0, 0, 0, 0, -32)')).toBe(true)
     expect(isCollapsedTransform('matrix(1, 0, 0, 0, 0, 0)')).toBe(true)
     expect(isCollapsedTransform('matrix(0.707107, 0.707107, -0.707107, 0.707107, 0, 0)')).toBe(false)

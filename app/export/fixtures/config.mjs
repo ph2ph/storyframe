@@ -1,6 +1,6 @@
 /*
- * Конфигурация для тестов: каталог из собственных компонентов и каталога MUI на одной странице, иконки - на
- * своей, раздел для разработчиков вне файла, два набора с особыми осями.
+ * Configuration for tests: a catalog of the kit's own components and the MUI catalog on one page, icons on
+ * a page of their own, the developer section kept out of the file, two component sets with custom axes.
  */
 
 const CHECKED = { false: { checked: false }, true: { checked: true } }

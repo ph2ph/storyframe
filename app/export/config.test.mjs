@@ -4,14 +4,14 @@ import config from './fixtures/config.mjs'
 
 const story = (title, id = `${title.toLowerCase().replaceAll('/', '-')}--basic`) => ({ type: 'story', id, title })
 
-describe('конфигурация storyframe', () => {
-  it('префикс покрывает заголовок по целым сегментам', () => {
+describe('storyframe configuration', () => {
+  it('a prefix covers a title by whole segments', () => {
     expect(coversTitle('Компоненты', 'Компоненты/DataTable')).toBe(true)
     expect(coversTitle('Компоненты', 'Компоненты MUI/Inputs/Button')).toBe(false)
     expect(coversTitle('Компоненты/Иконки', 'Компоненты/Иконки')).toBe(true)
   })
 
-  it('без конфигурации - страница на каждый раздел верхнего уровня в порядке каталога', () => {
+  it('without a configuration, a page per top-level section in catalog order', () => {
     const pages = resolvePages(normalizeConfig(), ['Гайдлайн/Палитра', 'Компоненты/A', 'Гайдлайн/Сетка', 'MCP/API'])
     expect(pages.map((page) => [page.id, page.name, page.include])).toEqual([
       ['Гайдлайн', 'Гайдлайн', ['Гайдлайн']],
@@ -20,14 +20,14 @@ describe('конфигурация storyframe', () => {
     ])
   })
 
-  it('заголовок уходит на страницу с самым длинным префиксом; раздел - папка каталога, без папки - раздел префикса', () => {
+  it('longest prefix wins the title; the section is the catalog folder, without one it is the prefix section', () => {
     const pages = resolvePages(normalizeConfig(config), [])
     expect(placeTitle('Компоненты/Иконки', pages, config.exclude)).toMatchObject({
       page: { id: 'icons' },
       section: 'Иконки',
       item: 'Иконки',
     })
-    // Собственные компоненты и каталог MUI объединены в конфигурации на одной странице.
+    // The kit's own components and the MUI catalog are merged onto one page in the configuration.
     expect(placeTitle('Компоненты/DataTable', pages, config.exclude)).toMatchObject({
       page: { id: 'components' },
       section: 'Компоненты',
@@ -42,7 +42,7 @@ describe('конфигурация storyframe', () => {
     expect(placeTitle('Неизвестный/Раздел', pages, config.exclude)).toBeNull()
   })
 
-  it('объединение разделов: два префикса на одной странице', () => {
+  it('merging sections: two prefixes on one page', () => {
     const merged = normalizeConfig({
       pages: [{ id: 'components', name: 'Компоненты', include: ['Компоненты', 'Компоненты MUI'] }],
     })

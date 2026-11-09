@@ -1,10 +1,11 @@
 /*
- * Сборщик выгрузки для Figma (`storyframe export`): токены из темы проекта, каталог Storybook по страницам
- * конфигурации (`storyframe.config.ts`), наборы компонентов из матрицы аргументов «Базовой» истории, остальные
- * истории - фреймами; сведение режимов, привязка к токенам, склейка одинаковых вариантов, инварианты, запись
- * `kit.json`, `kit.zip` и `index.json` в папку выгрузки (по умолчанию `<storybook>/figma-data`).
+ * Builder of the export for Figma (`storyframe export`): tokens from the project theme, the Storybook catalog
+ * laid out across the pages of the configuration (`storyframe.config.ts`), component sets from the args matrix
+ * of the "Basic" story, the remaining stories as frames; merging of modes, binding to tokens, merging of
+ * indistinguishable variants, invariants, writing `kit.json`, `kit.zip` and `index.json` to the export folder
+ * (`<storybook>/figma-data` by default).
  *
- *   storyframe export [--only <подстрока заголовка или id>] [--tabs 4] [--shots [каталог]]
+ *   storyframe export [--only <title substring or id>] [--tabs 4] [--shots [directory]]
  */
 
 import { createHash } from 'node:crypto'
@@ -29,10 +30,10 @@ import { loadTheme } from './theme.mjs'
 import { buildTokens } from './tokens.mjs'
 import { createZip } from './zip.mjs'
 
-/** Папка эталонных снимков историй-фреймов (`stories/<id истории>.png`), как её называет плагин. */
+/** Folder of reference screenshots of frame stories (`stories/<story id>.png`), as the Figma plugin names it. */
 const STORIES_FOLDER = 'stories'
 
-/** Markdown описания Storybook → текст: ссылки `[текст](адрес)` становятся «текст: адрес». */
+/** Storybook description Markdown → text: links `[text](url)` become "text: url". */
 export function plainDescription(markdown) {
   return (markdown ?? '')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1: $2')
@@ -41,7 +42,7 @@ export function plainDescription(markdown) {
     .trim()
 }
 
-/** Путь первого текстового слоя дерева - свойство `Label` набора. */
+/** Path of the tree's first text layer, the component set's `Label` property. */
 function firstTextPath(tree) {
   if (tree.type === 'text') return tree.path
   if (tree.type !== 'frame') return null
@@ -52,14 +53,14 @@ function firstTextPath(tree) {
   return null
 }
 
-/** Оси найденного набора, у которых после исключений осталось меньше двух значений, матрицу не образуют. */
+/** Axes of a discovered component set left with fewer than two values after exclusions do not form a matrix. */
 function viableAxes(entry, argTypes) {
   return { ...entry, axes: entry.axes.filter((axis) => 'values' in axis || axisValues(axis, argTypes).length >= 2) }
 }
 
 /**
- * Значение, на котором упала съёмка найденного набора: последняя в ключе пара, отличная от умолчания
- * истории (умолчание точно рисуется), иначе последняя пара.
+ * The value on which the capture of a discovered component set failed: the last pair in the key that differs
+ * from the story default (the default is known to render), otherwise the last pair.
  */
 function culprit(entry, message, initialArgs) {
   const failed = failedVariant(message)
@@ -70,14 +71,15 @@ function culprit(entry, message, initialArgs) {
 
 const MAX_EXCLUSIONS = 8
 
-/** Имя аргумента оси: у оси со списком - `arg`, у оси с готовыми аргументами - первый ключ значения. */
+/** Axis arg name: `arg` for an axis with a list, the first key of a value for an axis with ready-made args. */
 function axisArg(axis) {
   return 'arg' in axis ? axis.arg : (Object.keys(Object.values(axis.values)[0] ?? {})[0] ?? null)
 }
 
 /**
- * Эталонные снимки после склейки: ушедшие варианты удаляются, оставшиеся переименовываются под новый ключ
- * (без склеенных осей), чтобы `storyframe compare` нашёл пару снимку из Figma.
+ * Reference screenshots after the merging of indistinguishable variants: the merged-away variants are deleted,
+ * the remaining ones are renamed to the new key (without the merged axes) so that `storyframe compare` finds
+ * the match for a screenshot from Figma.
  */
 async function renameShots(context, folder, renames, removed) {
   if (!context.shots) return
@@ -88,8 +90,8 @@ async function renameShots(context, folder, renames, removed) {
 }
 
 /**
- * Набор компонента: матрица аргументов «Базовой» истории со съёмкой состояний. `null` - у истории нет корня
- * компонента по классу (страница Гайдлайна, каталог иконок): тогда она выгружается фреймом.
+ * Component set: the args matrix of the "Basic" story with state captures. `null` means the story has no
+ * component root by class (a Guideline page, the icon catalog): then it is exported as a frame.
  */
 async function exportComponent(entry, session, slotIndex, context) {
   const { argTypes, initialArgs, description } = await session.argTypes(entry.storyId, slotIndex)
@@ -109,8 +111,8 @@ async function exportComponent(entry, session, slotIndex, context) {
       captured = await session.shoot({ storyId: entry.storyId, root, name: entry.id, samples, slotIndex })
       break
     } catch (error) {
-      // История найденного набора может падать на отдельном значении (`multiple` без массива, цвет вне
-      // палитры, невидимый корень): значение исключается, набор снимается заново.
+      // The story of a discovered component set may fail on a single value (`multiple` without an array, a
+      // color outside the palette, an invisible root): the value is excluded and the set is captured again.
       const found = entry.auto && exclusions < MAX_EXCLUSIONS ? culprit(resolved, error.message, initialArgs) : null
       const next = found ? withoutValue(resolved, found[0], found[1]) : null
       if (!next) throw error
@@ -166,7 +168,7 @@ async function exportComponent(entry, session, slotIndex, context) {
     variants,
     dependsOn: entry.dependsOn ?? [],
   }
-  // Одинаковые на макете варианты (поведение без облика, ширина контейнера) склеиваются.
+  // Variants identical in the design (behavior without appearance, container width) are merged.
   const defaults = Object.fromEntries(axes.map((axis) => [axis.name, defaultValue(resolved, axis.name, initialArgs)]))
   const before = new Set(component.variants)
   const collapsed = collapseIdentical(component, defaults)
@@ -183,7 +185,7 @@ async function exportComponent(entry, session, slotIndex, context) {
   return { component, description: plainDescription(description) }
 }
 
-/** История фреймом: содержимое истории без обёрток, компоненты внутри потом станут экземплярами. */
+/** A story as a frame: the story content without wrappers, components inside become instances later. */
 async function exportStory(story, session, slotIndex, context) {
   const sample = { key: story.id, args: {}, state: {} }
   const captured = await session.shoot({
@@ -227,14 +229,16 @@ async function exportAll(plan, context, tabs) {
           try {
             result = await exportComponent(job.entry, session, slot, context)
           } catch (error) {
-            // Найденный в каталоге набор не должен ронять выгрузку: история может не иметь корня в DOM.
+            // A component set discovered in the catalog must not bring down the export: the story may have no
+            // root in the DOM.
             if (!job.entry.auto) throw error
             session.reset(slot)
             context.report.warning(`${job.entry.id}: набор из каталога пропущен - ${error.message}`)
             result = null
           }
           if (!result) {
-            // Без корня компонента «Базовая» история тоже идёт фреймом (если она уже не фрейм пункта).
+            // Without a component root the "Basic" story also goes as a frame (unless it is already a frame of
+            // the item).
             if (job.entry.auto) {
               const story = context.storiesById.get(job.entry.storyId)
               if (story && !job.planned.frames.some((frame) => frame.id === story.id)) {
@@ -266,7 +270,7 @@ async function exportAll(plan, context, tabs) {
   return { components, stories, descriptions, fallbacks }
 }
 
-/** Экземпляры внутри вариантов (без самого компонента) и историй; `dependsOn` - порядок сборки в плагине. */
+/** Instances inside variants (except the component itself) and stories; `dependsOn` is the plugin's build order. */
 function linkInstances(components, stories, report) {
   const index = buildSignatureIndex(components)
   const outOfMatrix = []
@@ -289,7 +293,7 @@ function linkInstances(components, stories, report) {
     outOfMatrix.push(...result.outOfMatrix)
     kept.push(...result.kept)
   }
-  // Узлы, похожие на вариант, которого нет в матрице: по одному предупреждению на пару «где → какой набор».
+  // Nodes resembling a variant missing from the matrix: one warning per "where → which component set" pair.
   const grouped = new Map()
   for (const entry of outOfMatrix) {
     const [where, rest] = entry.split(': ')
@@ -320,7 +324,7 @@ function allTrees(components, stories) {
   ]
 }
 
-/** Ассеты, на которые после замены экземплярами никто не ссылается, из выгрузки убираются. */
+/** Assets nobody references after the replacement with instances are removed from the export. */
 function pruneAssets(assets, components, stories) {
   const used = new Set()
   for (const { tree } of allTrees(components, stories))
@@ -328,7 +332,7 @@ function pruneAssets(assets, components, stories) {
   for (const key of Object.keys(assets)) if (!used.has(key)) delete assets[key]
 }
 
-/** Литералы цвета в итоговых деревьях (после замены экземплярами), сгруппированные по значению. */
+/** Color literals in the final trees (after the replacement with instances), grouped by value. */
 function collectUnbound(components, stories) {
   const found = new Map()
   const note = (ref, where) => {
@@ -410,7 +414,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
     `Каталог: ${layout.length} страниц, ${plan.length} пунктов, ${plan.reduce((sum, item) => sum + item.components.length, 0)} наборов-кандидатов, ${plan.reduce((sum, item) => sum + item.frames.length, 0)} историй фреймами\n`,
   )
   const shots = values.shots === undefined ? null : path.resolve(root, values.shots || paths.shots.storybook)
-  // Старые эталоны (прошлые ключи вариантов, исчезнувшие истории) сверке только мешают.
+  // Old references (past variant keys, vanished stories) only get in the way of the comparison.
   if (shots && !values.only) await rm(shots, { recursive: true, force: true })
   if (shots && values.only) {
     for (const planned of plan) {
@@ -427,7 +431,8 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
     storiesById: new Map(storyEntries.map((entry) => [entry.id, entry])),
     storyUrl,
     storybook: paths.storybook,
-    // Эталонные PNG историй для сверки с Figma (`storyframe compare`); без флага съёмка их не делает.
+    // Reference PNGs of stories for the comparison with Figma (`storyframe compare`); without the flag the
+    // capture does not make them.
     shots,
   }
   const started = Date.now()
@@ -444,7 +449,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
     .flatMap((page) => page.sections.flatMap((section) => section.items.flatMap((item) => item.stories)))
     .map((id) => results.stories.get(id))
   const outOfMatrix = linkInstances(components, stories, report)
-  // Склеенные двойники и признак растянутого корня нужны были только склейке и поиску экземпляров.
+  // The merged twins and the stretched root flag were needed only by the merging and the instance search.
   for (const component of components) {
     for (const variant of component.variants) {
       delete variant.aliases
@@ -468,7 +473,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()) {
     ...(config.layout ? { layout: config.layout } : {}),
     report: { ...toReport(context.merge), unboundColors: collectUnbound(components, stories), outOfMatrix },
   }
-  // Без отступов: выгрузка втрое меньше, а читают её плагин и тесты.
+  // No indentation: the bundle is three times smaller, and it is read by the Figma plugin and the tests.
   const json = `${JSON.stringify(bundle)}\n`
   checkBundle(bundle, report, {
     unboundExceptions: config.unboundExceptions,

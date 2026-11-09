@@ -40,8 +40,8 @@ function text() {
   }
 }
 
-describe('схема выгрузки', () => {
-  it('принимает пустую выгрузку и выгрузку с компонентом', () => {
+describe('export schema', () => {
+  it('accepts an empty export and an export with a component', () => {
     expect(validateBundle(emptyBundle('0.12.0'))).toEqual([])
     const bundle = emptyBundle('0.12.0')
     bundle.tokens.colors.push({
@@ -85,7 +85,7 @@ describe('схема выгрузки', () => {
     expect(validateBundle(bundle)).toEqual([])
   })
 
-  it('называет поле с ошибкой', () => {
+  it('names the field with the error', () => {
     const bundle = emptyBundle()
     bundle.schema = SCHEMA_VERSION + 1
     const issues = validateBundle(bundle)
@@ -98,7 +98,7 @@ describe('схема выгрузки', () => {
     expect(validateBundle(withNode).join('\n')).toContain('stories.0.tree.children.0.autoResize')
   })
 
-  it('раскладка необязательна; ширина папки - число не меньше 320', () => {
+  it('layout is optional; folder width is a number of at least 320', () => {
     const bundle = emptyBundle()
     bundle.layout = { maxWidth: 1980 }
     expect(validateBundle(bundle)).toEqual([])
