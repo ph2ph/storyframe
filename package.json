@@ -1,0 +1,105 @@
+{
+  "name": "@ph2ph/storyframe",
+  "version": "0.1.0",
+  "description": "Дизайн-система в Figma из каталога Storybook: выгрузка историй и темы для плагина storyframe, блок «Варианты» для страниц документации Storybook",
+  "type": "module",
+  "license": "MIT",
+  "author": "Ivan Starynkevich",
+  "keywords": [
+    "figma",
+    "figma-plugin",
+    "storybook",
+    "design-system",
+    "design-tokens",
+    "variables"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": "./bin/storyframe.mjs",
+  "exports": {
+    "./config": {
+      "types": "./app/config.d.mts",
+      "default": "./app/config.mjs"
+    },
+    "./mui": {
+      "types": "./app/mui/index.d.mts",
+      "default": "./app/mui/index.mjs"
+    },
+    "./storybook": "./app/storybook/index.ts",
+    "./format": "./app/export/capture/types.ts",
+    "./variants": "./app/export/variants.ts",
+    "./zip": {
+      "types": "./app/export/zip.d.mts",
+      "default": "./app/export/zip.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "app",
+    "!**/*.test.*",
+    "!**/fixtures/**"
+  ],
+  "engines": {
+    "node": ">=22.22.1"
+  },
+  "packageManager": "yarn@4.17.0",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "oxlint",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
+  },
+  "dependencies": {
+    "esbuild": "0.28.1",
+    "valibot": "^1.4.0"
+  },
+  "peerDependencies": {
+    "@storybook/addon-docs": ">=10.6",
+    "@storybook/react-vite": ">=10.6",
+    "react": ">=18",
+    "storybook": ">=10.6",
+    "storybook-addon-pseudo-states": ">=10.6",
+    "vite": ">=6"
+  },
+  "peerDependenciesMeta": {
+    "@storybook/addon-docs": {
+      "optional": true
+    },
+    "@storybook/react-vite": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    },
+    "storybook": {
+      "optional": true
+    },
+    "storybook-addon-pseudo-states": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.14",
+    "@emotion/styled": "^11.14",
+    "@mui/material": "9.1.2",
+    "@storybook/addon-docs": "~10.6.4",
+    "@storybook/react-vite": "~10.6.4",
+    "@types/jsdom": "^30",
+    "@types/react": "^19.2.14",
+    "jsdom": "^30",
+    "oxfmt": "0.72.0",
+    "oxlint": "1.87.0",
+    "oxlint-tsgolint": "7.0.2003",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "storybook": "~10.6.4",
+    "storybook-addon-pseudo-states": "~10.6.4",
+    "typescript": "~6.0.2",
+    "vite": "^6.4.3",
+    "vitest": "^4.1.10"
+  }
+}

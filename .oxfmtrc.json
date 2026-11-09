@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 120,
+  "sortPackageJson": false,
+  "ignorePatterns": [".claude/", ".storyframe/"],
+  "sortImports": {
+    "newlinesBetween": false,
+    "customGroups": [
+      { "groupName": "side-effects", "selector": "side_effect" },
+      { "groupName": "react", "elementNamePattern": ["react", "react-dom", "react-dom/**"] }
+    ],
+    "groups": ["side-effects", "builtin", "react", "external", "internal", "parent", ["sibling", "index"]]
+  }
+}
