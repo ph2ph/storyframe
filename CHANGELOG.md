@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Releases are published from GitHub Actions through npm trusted publishing, with provenance.
+
 ## 0.1.0, 2026-11-19
 
 First version as a separate package. The export and the Variants block are extracted from the @a1s/react-ui UI kit

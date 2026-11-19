@@ -22,9 +22,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "bin": {
-    "storyframe": "dist/bin/storyframe.js"
-  },
+  "bin": "dist/bin/storyframe.js",
   "exports": {
     "./config": {
       "types": "./dist/app/config.d.ts",

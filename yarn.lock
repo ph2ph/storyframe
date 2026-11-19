@@ -1947,7 +1947,7 @@ __metadata:
     storybook-addon-pseudo-states:
       optional: true
   bin:
-    storyframe: ./bin/storyframe.mjs
+    storyframe: dist/bin/storyframe.js
   languageName: unknown
   linkType: soft
 

@@ -24,6 +24,16 @@ package ships `dist/` only: Node refuses to strip types under `node_modules`, so
 `portal:`, see it. A change of the export format is additionally checked in the plugin repository
 against a real project export (`STORYFRAME_KIT=<project>/storybook-static/figma-data/kit.json yarn test`).
 
+## Release
+
+GitHub Actions run the definition of done on every push to `main` and on pull requests
+(`.github/workflows/ci.yml`). A version is published by `.github/workflows/publish.yml` on a pushed tag `vX.Y.Z`
+through npm trusted publishing: no npm token in the repository, provenance attached by npm. Steps: the version in
+`package.json` and a `## X.Y.Z, <date>` section in `CHANGELOG.md` in one commit on `main`, then
+`git tag vX.Y.Z && git push origin main vX.Y.Z`. The workflow refuses a tag that differs from the version in
+`package.json`. The trusted publisher on npmjs.com (package settings) names the repository `ph2ph/storyframe` and
+the workflow file `publish.yml` and allows `npm publish`; renaming the workflow breaks publishing.
+
 ## Structure
 
 - `bin/storyframe.ts` contains the CLI; every command is a module `app/export/*.ts` with `main(argv, root)`,

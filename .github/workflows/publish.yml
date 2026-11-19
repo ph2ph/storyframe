@@ -1,0 +1,35 @@
+name: Publish
+
+# A pushed tag `vX.Y.Z` publishes the package to npmjs. Authentication is npm trusted publishing (OIDC): no
+# token in the repository secrets; the trusted publisher on npmjs.com names this repository and `publish.yml`.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: corepack enable
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          # No dependency cache in a release build.
+          package-manager-cache: false
+      # Trusted publishing needs npm 11.5.1 or later; the npm bundled with Node may be older.
+      - run: npm install --global npm@^11.5.1
+      - name: Tag matches the package version
+        run: test "$GITHUB_REF_NAME" = "v$(node -p 'require("./package.json").version')"
+      - run: yarn install --immutable
+      - run: yarn typecheck
+      - run: yarn lint
+      - run: yarn format:check
+      - run: yarn test
+      # `prepack` builds dist/; provenance is attached automatically for a public repository.
+      - run: npm publish
