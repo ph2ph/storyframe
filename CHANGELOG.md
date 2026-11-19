@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0, unreleased
+## 0.1.0, 2026-11-19
 
 First version as a separate package. The export and the Variants block are extracted from the @a1s/react-ui UI kit
 (there they lived in `scripts/figma` and `.storybook/variants.tsx`) and decoupled from it. The Figma plugin lives

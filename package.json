@@ -5,6 +5,12 @@
   "type": "module",
   "license": "MIT",
   "author": "Ivan Starynkevich",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ph2ph/storyframe.git"
+  },
+  "homepage": "https://github.com/ph2ph/storyframe#readme",
+  "bugs": "https://github.com/ph2ph/storyframe/issues",
   "keywords": [
     "figma",
     "figma-plugin",
