@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1, 2026-11-19
 
 - Releases are published from GitHub Actions through npm trusted publishing, with provenance.
 - English throughout: CLI output, export warnings and the report, the Variants block, the state labels of the
