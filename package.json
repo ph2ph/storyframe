@@ -23,7 +23,7 @@
     "access": "public"
   },
   "bin": {
-    "storyframe": "./dist/bin/storyframe.js"
+    "storyframe": "dist/bin/storyframe.js"
   },
   "exports": {
     "./config": {
