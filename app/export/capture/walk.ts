@@ -143,7 +143,7 @@ function fillsOf(ctx: IWalkContext, style: CSSStyleDeclaration, warnings: string
         angle: gradient.angle,
         stops: gradient.stops.map((stop) => ({ pos: stop.pos, color: literal(stop.color) })),
       })
-    } else warnings.push(`фон ${style.backgroundImage.slice(0, 40)}… не перенесён`)
+    } else warnings.push(`background ${style.backgroundImage.slice(0, 40)}… not transferred`)
   }
   return fills
 }
@@ -1040,7 +1040,7 @@ export function captureElement(win: Window, root: Element, name: string): ICaptu
   const ctx: IWalkContext = { win, assets, brightness: 1, scale: 1, rotation: IDENTITY }
   const parentRect = root.getBoundingClientRect()
   let tree = visit(ctx, root, new DOMRect(parentRect.x, parentRect.y, 0, 0), '', name)
-  if (!tree) throw new Error(`Корень ${name} невидим или пуст`)
+  if (!tree) throw new Error(`Root ${name} is invisible or empty`)
   tree.box = { ...tree.box, x: 0, y: 0 }
   // The variant root is always a frame: a component made of a single text (TruncatedText) is wrapped in a
   // hug-sized row.

@@ -50,7 +50,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
   const { port } = server.address() as AddressInfo
   const kit = path.relative(dir, path.join(paths.out, 'kit.json')).split(path.sep).join('/')
   process.stderr.write(
-    `Выгрузка для Figma: http://localhost:${port}/${kit} (в плагине - адрес http://localhost:${port})\n`,
+    `Export for Figma: http://localhost:${port}/${kit} (in the plugin use the address http://localhost:${port})\n`,
   )
   // The server runs until Ctrl+C.
   return new Promise(() => {})

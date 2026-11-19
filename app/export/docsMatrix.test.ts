@@ -17,9 +17,9 @@ const BUTTON = {
 }
 
 const CONFIG = {
-  pages: [{ id: 'components', name: 'Компоненты', include: ['Компоненты', 'Компоненты MUI'] }],
-  exclude: ['Компоненты MUI/Utils'],
-  skip: { Modal: 'портал' },
+  pages: [{ id: 'components', name: 'Components', include: ['Components', 'Components MUI'] }],
+  exclude: ['Components MUI/Utils'],
+  skip: { Modal: 'portal' },
   components: [
     {
       id: 'TextField',
@@ -35,7 +35,7 @@ const CONFIG = {
 
 describe('variant matrix for the docs', () => {
   it('discovered set: axes from argTypes without inherit, state flags and modifiers, states from flags', () => {
-    const [matrix] = docsMatrices('Компоненты MUI/Inputs/Button', [BUTTON], CONFIG)
+    const [matrix] = docsMatrices('Components MUI/Inputs/Button', [BUTTON], CONFIG)
     expect(matrix.axes!.map((axis) => [axis.name, axis.values])).toEqual([
       ['Variant', ['contained', 'outlined']],
       ['Color', ['primary', 'error']],
@@ -68,14 +68,14 @@ describe('variant matrix for the docs', () => {
 
   it('the configuration entry takes precedence: focus takes the entry args, not the focus classes', () => {
     const story = { id: 'mui-inputs-textfield--basic', argTypes: { variant: select(['outlined', 'filled']) } }
-    const [matrix] = docsMatrices('Компоненты MUI/Inputs/TextField', [story], CONFIG)
+    const [matrix] = docsMatrices('Components MUI/Inputs/TextField', [story], CONFIG)
     expect(matrix.id).toBe('TextField')
     const focus = matrix.rows!.flatMap((row) => row.cells).find((cell) => cell?.variant.State === 'focus')
     expect(focus).toMatchObject({ args: { variant: 'outlined', focused: true }, pseudo: [] })
 
     const { stateArgs, ...plain } = CONFIG.components[0]
     void stateArgs
-    const [bare] = docsMatrices('Компоненты MUI/Inputs/TextField', [story], { ...CONFIG, components: [plain] })
+    const [bare] = docsMatrices('Components MUI/Inputs/TextField', [story], { ...CONFIG, components: [plain] })
     expect(bare.rows!.flatMap((row) => row.cells).find((cell) => cell?.variant.State === 'focus')?.pseudo).toEqual([
       'pseudo-focus-all',
       'pseudo-focus-visible-all',
@@ -84,14 +84,14 @@ describe('variant matrix for the docs', () => {
   })
 
   it('a skipped title, an excluded one and one that landed on no page yield no matrices', () => {
-    expect(docsMatrices('Компоненты MUI/Feedback/Modal', [BUTTON], CONFIG)).toEqual([])
-    expect(docsMatrices('Компоненты MUI/Utils/Popper', [BUTTON], CONFIG)).toEqual([])
-    expect(docsMatrices('MCP/Подключение', [BUTTON], CONFIG)).toEqual([])
+    expect(docsMatrices('Components MUI/Feedback/Modal', [BUTTON], CONFIG)).toEqual([])
+    expect(docsMatrices('Components MUI/Utils/Popper', [BUTTON], CONFIG)).toEqual([])
+    expect(docsMatrices('MCP/Connection', [BUTTON], CONFIG)).toEqual([])
   })
 
   it('an axis without a list of values in argTypes is a matrix error, not an exception', () => {
     const story = { id: 'mui-inputs-textfield--basic', argTypes: {} }
-    const [matrix] = docsMatrices('Компоненты MUI/Inputs/TextField', [story], CONFIG)
+    const [matrix] = docsMatrices('Components MUI/Inputs/TextField', [story], CONFIG)
     expect(matrix.error).toContain('variant')
   })
 })

@@ -107,12 +107,12 @@ export function buildTokens(theme: IStoryframeTheme): ITokensBuild {
     const light = lightCss === null ? null : parseColor(lightCss)
     const dark = darkCss === null ? null : parseColor(darkCss)
     if (!light && !dark) {
-      warnings.push(`${color.id}: не цвет (${lightCss ?? darkCss}), в токены не вошёл`)
+      warnings.push(`${color.id}: not a color (${lightCss ?? darkCss}), left out of the tokens`)
       continue
     }
     let description = color.description ?? ''
     if (!light || !dark) {
-      description = `${description} Задан только в ${light ? 'светлом' : 'тёмном'} режиме.`.trim()
+      description = `${description} Set in ${light ? 'light' : 'dark'} mode only.`.trim()
     }
     colors.push({
       id: color.id,
@@ -150,7 +150,7 @@ export function buildTokens(theme: IStoryframeTheme): ITokensBuild {
     const lightEffects = parseBoxShadow(shadow.light)
     const darkEffects = parseBoxShadow(dark)
     if (lightEffects.length === 0) {
-      warnings.push(`${shadow.id}: тень не разобрана (${shadow.light})`)
+      warnings.push(`${shadow.id}: shadow not parsed (${shadow.light})`)
       continue
     }
     effects.push({
@@ -164,9 +164,9 @@ export function buildTokens(theme: IStoryframeTheme): ITokensBuild {
 
   for (const token of typography) {
     const font = theme.fonts.find((item) => item.family === token.family)
-    if (!font) warnings.push(`${token.id}: семейства ${token.family} нет в шрифтах темы`)
+    if (!font) warnings.push(`${token.id}: family ${token.family} is not in the theme fonts`)
     else if (!font.weights.includes(token.weight))
-      warnings.push(`${token.id}: начертания ${token.weight} нет в шрифтах темы`)
+      warnings.push(`${token.id}: weight ${token.weight} is not in the theme fonts`)
   }
 
   const canvas = { light: parseGlow(theme.canvas?.light), dark: parseGlow(theme.canvas?.dark ?? theme.canvas?.light) }

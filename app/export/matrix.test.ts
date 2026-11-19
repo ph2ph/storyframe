@@ -45,12 +45,12 @@ describe('variant matrix', () => {
     const indeterminate = samples.find((sample) => sample.variant.Checked === 'indeterminate')
     expect(indeterminate?.args).toMatchObject({ checked: false, indeterminate: true })
     expect(checkMatrix(checkbox, samples)).toEqual([])
-    expect(checkMatrix(checkbox, [...samples, ...samples]).some((problem) => /дубль/.test(problem))).toBe(true)
+    expect(checkMatrix(checkbox, [...samples, ...samples]).some((problem) => /duplicate/.test(problem))).toBe(true)
     expect(
       checkMatrix(
         checkbox,
         Array.from({ length: 251 }, (_, i) => ({ key: String(i) })),
       )[0],
-    ).toMatch(/больше 250/)
+    ).toMatch(/over 250/)
   })
 })

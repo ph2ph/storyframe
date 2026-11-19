@@ -148,7 +148,7 @@ export function mergeTrees(
   scope: IMergeScope = { group: undefined },
 ): TLayerNode {
   if (!dark || dark.type !== light.type) {
-    if (dark) report.mismatches.push(`${where}: структура тёмного режима отличается на ${light.path || 'корне'}`)
+    if (dark) report.mismatches.push(`${where}: dark mode structure differs at ${light.path || 'root'}`)
     dark = null
   }
   const at = `${where}${light.path ? ` ${light.path}` : ''}`
@@ -233,7 +233,7 @@ export function mergeTrees(
       )
       const children = light.children.map((child, i) => {
         const darkChild = dark ? ((dark as IFrameNode).children[i] ?? null) : null
-        if (dark && !darkChild) report.mismatches.push(`${where}: в тёмном режиме нет слоя ${child.path}`)
+        if (dark && !darkChild) report.mismatches.push(`${where}: no layer in dark mode: ${child.path}`)
         return mergeTrees(index, report, where, child, darkChild, { group: scope.group })
       })
       return { ...light, fills, stroke, effects, children }

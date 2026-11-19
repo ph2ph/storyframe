@@ -294,7 +294,7 @@ export interface IStoryExport {
 
 /** Catalog item (a Storybook title): the component set and/or story frames. */
 export interface IItemExport {
-  /** Story title in the catalog: `Компоненты MUI/Inputs/Button`. */
+  /** Story title in the catalog: `Components MUI/Inputs/Button`. */
   id: string
   /** Last segment of the title: the item frame label. */
   title: string

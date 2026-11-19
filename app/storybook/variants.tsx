@@ -34,7 +34,7 @@ class CellBoundary extends Component<{ children: ReactNode }, { failed: boolean 
   }
 
   render() {
-    return this.state.failed ? <span style={labelStyle}>не отрисовалась</span> : this.props.children
+    return this.state.failed ? <span style={labelStyle}>failed to render</span> : this.props.children
   }
 }
 
@@ -69,7 +69,7 @@ function Matrix({
   if (matrix.error)
     return (
       <p>
-        Набор {matrix.id}: матрицу не построить - {matrix.error}
+        Set {matrix.id}: the matrix cannot be built - {matrix.error}
       </p>
     )
   const columns = matrix.columns ?? []
@@ -77,7 +77,7 @@ function Matrix({
   const labelled = rows.some((row) => row.values.length > 0)
   return (
     <>
-      {titled ? <p style={labelStyle}>Набор {matrix.id}</p> : null}
+      {titled ? <p style={labelStyle}>Set {matrix.id}</p> : null}
       {/* `sb-unstyled`: the docs page text styling (Storybook and `preview.tsx`) does not touch the cells. */}
       <div className="sb-unstyled" style={{ overflowX: 'auto', paddingBlock: 8 }}>
         <div
@@ -153,10 +153,10 @@ export function Variants({ config = NO_CONFIG }: { config?: IStoryframeConfig })
   const meta: unknown = csfFile.moduleExports.default
   return (
     <>
-      <Heading>Варианты</Heading>
+      <Heading>Variants</Heading>
       <p>
-        Все сочетания пропсов «Базовой» истории и состояния - те же варианты, что набор в Figma. Одинаковые на вид
-        значения Figma объединяет в один вариант, здесь показаны все.
+        Every combination of the props of the Basic story and every state: the same variants as the component set in
+        Figma. Figma merges values that look alike into one variant; this matrix shows all of them.
       </p>
       {matrices.map((matrix) => {
         const story = stories.find((candidate) => candidate.id === matrix.storyId)

@@ -201,7 +201,7 @@ function updateArgs(
     .then(() => win.document.fonts.ready)
     .then(() =>
       win.document.body.classList.contains('sb-show-errordisplay')
-        ? Promise.reject(new Error(win.document.getElementById('error-message')?.textContent || 'ошибка рендера'))
+        ? Promise.reject(new Error(win.document.getElementById('error-message')?.textContent || 'render error'))
         : undefined,
     )
 }
@@ -357,7 +357,7 @@ export async function createCaptureSession({
   async function forcePseudo(tab: ITab, selector: string, classes: string[]) {
     const { root } = await tab.send('DOM.getDocument', { depth: 0 })
     const { nodeId } = await tab.send('DOM.querySelector', { nodeId: root.nodeId, selector })
-    if (!nodeId) throw new Error(`Нет элемента ${selector} для состояния`)
+    if (!nodeId) throw new Error(`No element ${selector} for the state`)
     await tab.send('CSS.forcePseudoState', { nodeId, forcedPseudoClasses: classes })
     await nextFrames(tab)
     return nodeId
@@ -386,14 +386,14 @@ export async function createCaptureSession({
       } catch (error) {
         // Under the load of neighboring tabs the story render occasionally misses the deadline, and a module of
         // the build fails to load ("Failed to fetch dynamically imported module"): one retry with a reload.
-        if (!/не дождались|dynamically imported module/.test(String(error))) throw error
-        log(`  ${storyId}: ${(error as Error).message}, повтор`)
+        if (!/timed out waiting for|dynamically imported module/.test(String(error))) throw error
+        log(`  ${storyId}: ${(error as Error).message}, retrying`)
         await openStory(chrome.cdp, slot.tab, origin, storyId, mode, storyId)
       }
       slot.storyId = storyId
       slot.mode = mode
     } else if (slot.mode !== mode) {
-      await evaluate(slot.tab, updateMode, [mode, RENDER_TIMEOUT_MS], `${storyId}: режим ${mode}`)
+      await evaluate(slot.tab, updateMode, [mode, RENDER_TIMEOUT_MS], `${storyId}: mode ${mode}`)
       slot.mode = mode
     }
   }
@@ -413,7 +413,7 @@ export async function createCaptureSession({
     async resolveRoot(storyId: string, id: string, fallback: string | null, slotIndex = 0): Promise<string | null> {
       const slot = pool[slotIndex % pool.length]
       await prepare(slot, storyId, 'light')
-      return evaluate(slot.tab, findRootSelector, [id, fallback], `${storyId}: корень`)
+      return evaluate(slot.tab, findRootSelector, [id, fallback], `${storyId}: root`)
     },
     /**
      * Captures a sample: `samples` is a list of `{ key, args, state: { pseudo?: string[], focus?: boolean } }`.
@@ -465,8 +465,8 @@ export async function createCaptureSession({
           } catch (error) {
             // Under the load of neighboring tabs the remounted story occasionally fails to render within the
             // deadline: one retry with a remount and a pause.
-            if (!/Нет элемента|невидим или пуст/.test(String(error))) throw error
-            log(`  ${label}: ${String((error as Partial<Error>).message ?? error).slice(0, 120)}, повтор`)
+            if (!/No element|is invisible or empty/.test(String(error))) throw error
+            log(`  ${label}: ${String((error as Partial<Error>).message ?? error).slice(0, 120)}, retrying`)
             await new Promise((resolve) => setTimeout(resolve, 500))
             await attempt(true)
           }

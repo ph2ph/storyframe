@@ -36,7 +36,7 @@ const text = (value: string, path: string, h = 1): ITextNode => ({
 const BUTTON = (variant: string, state: string, extra: string[] = []) => ({
   variant: { Variant: variant, State: state },
   signature: ['MuiButton-root', 'MuiButtonBase-root', `MuiButton-${variant}`, 'MuiButton-sizeMedium', ...extra].sort(),
-  tree: frame([], [text('Кнопка', '/0')]),
+  tree: frame([], [text('Button', '/0')]),
 })
 
 const COMPONENTS = [
@@ -83,23 +83,23 @@ describe('class signatures', () => {
       [
         frame(
           ['MuiButtonBase-root', 'MuiButton-root', 'MuiButton-contained', 'MuiButton-sizeMedium'],
-          [text('Запустить', '/0/0')],
+          [text('Run', '/0/0')],
           '/0',
         ),
-        frame(['MuiButton-root', 'MuiButton-outlined'], [text('Ещё', '/1/0')], '/1'),
+        frame(['MuiButton-root', 'MuiButton-outlined'], [text('More', '/1/0')], '/1'),
       ],
     )
-    const { tree: result, dependsOn, outOfMatrix } = replaceInstances(tree, index, { where: 'Карточка' })
+    const { tree: result, dependsOn, outOfMatrix } = replaceInstances(tree, index, { where: 'Card' })
     expect((result as IFrameNode).children[0]).toMatchObject({
       type: 'instance',
       component: 'Button',
       variant: { Variant: 'contained', State: 'default' },
-      overrides: { text: { Label: 'Запустить' } },
+      overrides: { text: { Label: 'Run' } },
     })
     expect((result as IFrameNode).children[1].type).toBe('frame')
     expect((result as IFrameNode).children[1].classes).toBeUndefined()
     expect(dependsOn).toEqual(['Button'])
-    expect(outOfMatrix).toEqual(['Карточка /1: Button (MuiButton-root MuiButton-outlined)'])
+    expect(outOfMatrix).toEqual(['Card /1: Button (MuiButton-root MuiButton-outlined)'])
   })
 
   it('a node differing from the variant not by the label stays as layers with the reason', () => {
@@ -108,17 +108,14 @@ describe('class signatures', () => {
     const tree = frame(
       ['MuiCard-root'],
       [
-        frame(button, [text('Сохранить', '/0/0')], '/0', { x: 0, y: 0, w: 40, h: 10 }),
-        frame(button, [text('Две строки', '/1/0', 3)], '/1'),
-        frame(button, [text('Отмена', '/2/0')], '/2'),
+        frame(button, [text('Save', '/0/0')], '/0', { x: 0, y: 0, w: 40, h: 10 }),
+        frame(button, [text('Two lines', '/1/0', 3)], '/1'),
+        frame(button, [text('Cancel', '/2/0')], '/2'),
       ],
     )
-    const { tree: result, kept } = replaceInstances(tree, index, { where: 'Форма' })
+    const { tree: result, kept } = replaceInstances(tree, index, { where: 'Form' })
     expect((result as IFrameNode).children.map((child) => child.type)).toEqual(['frame', 'frame', 'instance'])
-    expect(kept).toEqual([
-      'Форма /0: Button - /: ширина 40×10 ≠ 10×10',
-      'Форма /1: Button - /0: высота текста 1×3 ≠ 1×1',
-    ])
+    expect(kept).toEqual(['Form /0: Button - /: width 40×10 ≠ 10×10', 'Form /1: Button - /0: text height 1×3 ≠ 1×1'])
   })
 
   it('a merged twin of a variant is found by its signature and yields an instance of the remaining variant', () => {

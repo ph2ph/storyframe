@@ -142,35 +142,35 @@ export function divergence(
   // `b` has the type of `a` past the first check: the trees are compared node by node.
   const walk = (a: TLayerNode, b: TLayerNode): string | null => {
     const at = relative(a.path) || '/'
-    if (a.type !== b.type) return `${at}: ${a.type} вместо ${b.type}`
+    if (a.type !== b.type) return `${at}: ${a.type} instead of ${b.type}`
     if (a.type === 'text') {
-      if (Math.abs(a.box.h - b.box.h) > SIZE_EPSILON) return `${at}: высота текста ${sizeOf(a.box)} ≠ ${sizeOf(b.box)}`
-      if (a.autoResize !== 'both' && Math.abs(a.box.w - b.box.w) > SIZE_EPSILON) return `${at}: ширина текста`
+      if (Math.abs(a.box.h - b.box.h) > SIZE_EPSILON) return `${at}: text height ${sizeOf(a.box)} ≠ ${sizeOf(b.box)}`
+      if (a.autoResize !== 'both' && Math.abs(a.box.w - b.box.w) > SIZE_EPSILON) return `${at}: text width`
       if (!textProps.some((prop) => prop.path === relative(a.path)) && a.text !== (b as ITextNode).text) {
-        return `${at}: текст «${a.text}» ≠ «${(b as ITextNode).text}»`
+        return `${at}: text "${a.text}" ≠ "${(b as ITextNode).text}"`
       }
-      if (!sameStyle(a.style, (b as ITextNode).style)) return `${at}: стиль текста`
-      if (!same(a.color, (b as ITextNode).color)) return `${at}: цвет текста`
+      if (!sameStyle(a.style, (b as ITextNode).style)) return `${at}: text style`
+      if (!same(a.color, (b as ITextNode).color)) return `${at}: text color`
       return null
     }
-    if (a.type === 'svg') return a.asset === (b as ISvgNode).asset ? null : `${at}: другая иконка`
+    if (a.type === 'svg') return a.asset === (b as ISvgNode).asset ? null : `${at}: different icon`
     if (a.type === 'instance') {
       return a.component === (b as IInstanceNode).component && same(a.variant, (b as IInstanceNode).variant)
         ? null
-        : `${at}: другой экземпляр`
+        : `${at}: different instance`
     }
     if ((a.sizing?.w ?? 'fixed') !== 'hug' && Math.abs(a.box.w - b.box.w) > SIZE_EPSILON) {
-      return `${at}: ширина ${sizeOf(a.box)} ≠ ${sizeOf(b.box)}`
+      return `${at}: width ${sizeOf(a.box)} ≠ ${sizeOf(b.box)}`
     }
     if ((a.sizing?.h ?? 'fixed') !== 'hug' && Math.abs(a.box.h - b.box.h) > SIZE_EPSILON) {
-      return `${at}: высота ${sizeOf(a.box)} ≠ ${sizeOf(b.box)}`
+      return `${at}: height ${sizeOf(a.box)} ≠ ${sizeOf(b.box)}`
     }
     for (const key of ['fills', 'stroke', 'radius', 'effects', 'opacity', 'clip'] as const) {
       if (!same(a[key], (b as IFrameNode)[key])) return `${at}: ${key}`
     }
-    if (a.layout.mode !== (b as IFrameNode).layout.mode) return `${at}: раскладка`
+    if (a.layout.mode !== (b as IFrameNode).layout.mode) return `${at}: layout`
     if (a.children.length !== (b as IFrameNode).children.length)
-      return `${at}: детей ${a.children.length} ≠ ${(b as IFrameNode).children.length}`
+      return `${at}: children ${a.children.length} ≠ ${(b as IFrameNode).children.length}`
     for (const [index, child] of a.children.entries()) {
       const other = (b as IFrameNode).children[index]
       // Child position outside auto layout is part of the look (the LinearProgress bar is shifted by its value).
@@ -179,7 +179,7 @@ export function divergence(
         placed &&
         (Math.abs(child.box.x - other.box.x) > SIZE_EPSILON || Math.abs(child.box.y - other.box.y) > SIZE_EPSILON)
       ) {
-        return `${relative(child.path) || '/'}: положение ${Math.round(child.box.x)},${Math.round(child.box.y)}`
+        return `${relative(child.path) || '/'}: position ${Math.round(child.box.x)},${Math.round(child.box.y)}`
       }
       const reason = walk(child, other)
       if (reason) return reason

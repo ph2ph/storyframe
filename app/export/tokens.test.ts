@@ -9,7 +9,7 @@ function theme(overrides: Partial<IStoryframeTheme> = {}): IStoryframeTheme {
   return {
     fonts: [{ family: 'Inter', weights: [400, 700] }],
     colors: [
-      { id: 'palette.primary.main', name: 'primary/main', light: '#403e3c', dark: '#e3847e', description: 'Действия' },
+      { id: 'palette.primary.main', name: 'primary/main', light: '#403e3c', dark: '#e3847e', description: 'Actions' },
       { id: 'palette.divider', light: 'rgba(54, 50, 47, 0.08)', dark: 'rgba(255, 255, 255, 0.1)' },
       { id: 'palette.background.gradient', light: 'radial-gradient(#fff, #000)' },
       { id: 'palette.text.icon', light: null, dark: 'rgba(255, 255, 255, 0.5)' },
@@ -33,7 +33,7 @@ function theme(overrides: Partial<IStoryframeTheme> = {}): IStoryframeTheme {
       { id: 'shadows.1', name: 'Shadow/soft', light: '0 2px 10px rgba(54, 50, 47, 0.06)' },
       { id: 'shadows.2', light: '0 8px 24px rgba(54, 50, 47, 0.1)' },
       { id: 'shadows.3', light: '0 8px 24px rgba(54, 50, 47, 0.1)' },
-      { id: 'shadows.4', light: 'не тень' },
+      { id: 'shadows.4', light: 'not a shadow' },
     ],
     ...overrides,
   }
@@ -43,7 +43,7 @@ describe('export tokens from a storyframe theme', () => {
   it('colors of both modes in RGBA 0–1; non-colors go to warnings, a single mode goes to the description', () => {
     const { tokens, warnings } = buildTokens(theme())
     const primary = tokens.colors.find((token) => token.id === 'palette.primary.main')
-    expect(primary).toMatchObject({ name: 'primary/main', description: 'Действия' })
+    expect(primary).toMatchObject({ name: 'primary/main', description: 'Actions' })
     expect(primary!.light).toEqual({ r: 0.251, g: 0.2431, b: 0.2353, a: 1 })
     expect(primary!.dark.r).toBeCloseTo(0.89, 2)
     const divider = tokens.colors.find((token) => token.id === 'palette.divider')
@@ -51,16 +51,14 @@ describe('export tokens from a storyframe theme', () => {
     expect(divider!.light.a).toBe(0.08)
     const icon = tokens.colors.find((token) => token.id === 'palette.text.icon')
     expect(icon!.light).toEqual(icon!.dark)
-    expect(icon!.description).toBe('Задан только в тёмном режиме.')
-    expect(tokens.colors.find((token) => token.id === 'palette.text.link')!.description).toBe(
-      'Задан только в светлом режиме.',
-    )
+    expect(icon!.description).toBe('Set in dark mode only.')
+    expect(tokens.colors.find((token) => token.id === 'palette.text.link')!.description).toBe('Set in light mode only.')
     // Without a dark value, one value for both modes, with no note.
     const black = tokens.colors.find((token) => token.id === 'palette.common.black')
     expect(black!.dark).toEqual(black!.light)
     expect(black!.description).toBe('')
     expect(tokens.colors.some((token) => token.id === 'palette.background.gradient')).toBe(false)
-    expect(warnings.some((text) => text.startsWith('palette.background.gradient: не цвет'))).toBe(true)
+    expect(warnings.some((text) => text.startsWith('palette.background.gradient: not a color'))).toBe(true)
     expect(colorName('tone.red.bg')).toBe('tone/red/bg')
   })
 
@@ -84,8 +82,8 @@ describe('export tokens from a storyframe theme', () => {
     })
     expect(tokens.effects.map((effect) => effect.name)).toEqual(['Shadow/soft', 'Shadow/shadows.2'])
     expect(tokens.effects[0].light[0]).toMatchObject({ type: 'drop', blur: 10 })
-    expect(warnings).toContain('shadows.4: тень не разобрана (не тень)')
-    expect(warnings).toContain('code: семейства Fira Code нет в шрифтах темы')
+    expect(warnings).toContain('shadows.4: shadow not parsed (not a shadow)')
+    expect(warnings).toContain('code: family Fira Code is not in the theme fonts')
     expect(fonts).toEqual([{ family: 'Inter', weights: [400, 700] }])
     expect(tokens.numbers).toEqual([
       { id: 'shape.borderRadius', name: 'radius/md', value: 11, scope: 'radius', description: '' },
@@ -101,7 +99,7 @@ describe('export tokens from a storyframe theme', () => {
         roles: { canvas: 'palette.background.default' },
       }),
     )
-    expect(warnings).toContain('h1: начертания 700 нет в шрифтах темы')
+    expect(warnings).toContain('h1: weight 700 is not in the theme fonts')
     expect(tokens.canvas.light).toHaveLength(1)
     expect(tokens.canvas.dark).toEqual(tokens.canvas.light)
     expect(tokens.roles).toEqual({ canvas: 'palette.background.default' })

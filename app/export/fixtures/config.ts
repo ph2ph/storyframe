@@ -9,16 +9,16 @@ const CHECKED = { false: { checked: false }, true: { checked: true } }
 
 export default {
   pages: [
-    { id: 'guideline', name: 'Гайдлайн', include: ['Гайдлайн'] },
-    { id: 'components', name: 'Компоненты', include: ['Компоненты', 'Компоненты MUI'] },
-    { id: 'icons', name: 'Иконки', include: ['Компоненты/Иконки'] },
+    { id: 'guideline', name: 'Guideline', include: ['Guideline'] },
+    { id: 'components', name: 'Components', include: ['Components', 'Components MUI'] },
+    { id: 'icons', name: 'Icons', include: ['Components/Icons'] },
   ],
   exclude: ['MCP'],
   components: [
     {
       id: 'Button',
       name: 'Inputs/Button',
-      storyId: 'компоненты-mui-inputs-button--basic',
+      storyId: 'components-mui-inputs-button--basic',
       storyFile: 'src/Button.stories.tsx',
       root: '.MuiButton-root',
       axes: [
@@ -32,7 +32,7 @@ export default {
     {
       id: 'Checkbox',
       name: 'Inputs/Checkbox',
-      storyId: 'компоненты-mui-inputs-checkbox--basic',
+      storyId: 'components-mui-inputs-checkbox--basic',
       storyFile: 'src/Checkbox.stories.tsx',
       root: '.MuiCheckbox-root',
       axes: [

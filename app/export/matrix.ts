@@ -25,7 +25,7 @@ export const MAX_VARIANTS = 250
 export function axisValues(axis: TAxis, argTypes: TArgTypes): string[] {
   if ('values' in axis) return Object.keys(axis.values)
   const options = argTypes[axis.arg]?.options
-  if (!options) throw new Error(`в argTypes истории нет списка значений для ${axis.arg}`)
+  if (!options) throw new Error(`the story argTypes have no value list for ${axis.arg}`)
   return options.map(String).filter((value) => !(axis.exclude ?? []).includes(value))
 }
 
@@ -76,10 +76,10 @@ export function variantKey(variant: TVariant, axes: { name: string }[]): string 
 export function checkMatrix(entry: { id: string }, samples: { key: string }[]): string[] {
   const problems: string[] = []
   if (samples.length > MAX_VARIANTS)
-    problems.push(`${entry.id}: матрица из ${samples.length} вариантов больше ${MAX_VARIANTS}`)
+    problems.push(`${entry.id}: matrix of ${samples.length} variants is over ${MAX_VARIANTS}`)
   const keys = new Set<string>()
   for (const sample of samples) {
-    if (keys.has(sample.key)) problems.push(`${entry.id}: дубль варианта ${sample.key}`)
+    if (keys.has(sample.key)) problems.push(`${entry.id}: duplicate variant ${sample.key}`)
     keys.add(sample.key)
   }
   return problems

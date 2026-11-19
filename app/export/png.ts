@@ -37,7 +37,7 @@ export interface IRgbaImage {
 
 /** Returns RGBA, 4 bytes per pixel. */
 export function decodePng(buffer: Buffer): IRgbaImage {
-  if (!buffer.subarray(0, 8).equals(SIGNATURE)) throw new Error('Не PNG')
+  if (!buffer.subarray(0, 8).equals(SIGNATURE)) throw new Error('Not a PNG')
   let offset = 8
   let width = 0
   let height = 0
@@ -50,10 +50,10 @@ export function decodePng(buffer: Buffer): IRgbaImage {
     if (type === 'IHDR') {
       width = body.readUInt32BE(0)
       height = body.readUInt32BE(4)
-      if (body[8] !== 8) throw new Error(`PNG: глубина ${body[8]} бит не поддерживается`)
-      if (body[12] !== 0) throw new Error('PNG: interlace не поддерживается')
+      if (body[8] !== 8) throw new Error(`PNG: bit depth ${body[8]} is not supported`)
+      if (body[12] !== 0) throw new Error('PNG: interlace is not supported')
       colorType = body[9]
-      if (!(colorType in CHANNELS)) throw new Error(`PNG: тип цвета ${colorType} не поддерживается`)
+      if (!(colorType in CHANNELS)) throw new Error(`PNG: color type ${colorType} is not supported`)
     } else if (type === 'IDAT') idat.push(body)
     else if (type === 'IEND') break
     offset += 12 + length

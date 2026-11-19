@@ -5,15 +5,15 @@
 
 /** Labels of the `State` axis values: which state the row or column shows. */
 export const STATE_LABELS: Record<string, string> = {
-  default: 'обычное состояние',
-  hover: 'при наведении',
-  focus: 'при фокусе с клавиатуры',
-  active: 'при нажатии',
-  disabled: 'недоступно',
-  error: 'ошибка',
+  default: 'default state',
+  hover: 'on hover',
+  focus: 'on keyboard focus',
+  active: 'when pressed',
+  disabled: 'disabled',
+  error: 'error',
 }
 
-/** Label of an axis value: "Variant=outlined", for a state "hover — при наведении". */
+/** Label of an axis value: "Variant=outlined", for a state "hover — on hover". */
 export function valueLabel(axis: string, value: string): string {
   if (axis === 'State') return STATE_LABELS[value] ? `${value} — ${STATE_LABELS[value]}` : value
   return `${axis}=${value}`

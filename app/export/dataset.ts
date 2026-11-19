@@ -158,7 +158,7 @@ async function exportComponent(
   const { argTypes, initialArgs, description } = await session.argTypes(entry.storyId, slotIndex)
   let resolved: TResolvedEntry = entry.auto ? resolveAutoEntry(entry, argTypes) : entry
   if ((resolved.dropped?.length ?? 0) > 0) {
-    context.log(`${entry.id}: оси ${resolved.dropped!.join(', ')} не вошли в предел ${AUTO_MAX_VARIANTS} вариантов`)
+    context.log(`${entry.id}: axes ${resolved.dropped!.join(', ')} do not fit the ${AUTO_MAX_VARIANTS} variant limit`)
   }
   const root = resolved.root ?? (await session.resolveRoot(entry.storyId, entry.id, null, slotIndex))
   if (!root) return null
@@ -180,7 +180,7 @@ async function exportComponent(
       if (!next) throw error
       resolved = next
       context.report.warning(
-        `${entry.id}: значение ${found![0]}=${found![1]} исключено из набора - ${(error as Error).message}`,
+        `${entry.id}: value ${found![0]}=${found![1]} excluded from the set - ${(error as Error).message}`,
       )
       session.reset(slotIndex)
     }
@@ -190,7 +190,7 @@ async function exportComponent(
   for (const sample of samples) {
     const shot = captured[sample.key]
     if (!shot?.light || !shot?.dark) {
-      context.report.violation(`${entry.id}: нет снимка варианта ${sample.key}`)
+      context.report.violation(`${entry.id}: no shot for variant ${sample.key}`)
       continue
     }
     Object.assign(context.assets, shot.light.assets)
@@ -222,7 +222,7 @@ async function exportComponent(
     name: entry.name,
     description: [
       plainDescription(description),
-      context.storyUrl(entry.storyId) && `История: ${context.storyUrl(entry.storyId)}`,
+      context.storyUrl(entry.storyId) && `Story: ${context.storyUrl(entry.storyId)}`,
     ]
       .filter(Boolean)
       .join('\n\n'),
@@ -266,7 +266,7 @@ async function exportStory(
     shotsFolder: STORIES_FOLDER,
   })
   const shot = captured[sample.key]
-  if (!shot?.light || !shot?.dark) throw new Error('нет снимка')
+  if (!shot?.light || !shot?.dark) throw new Error('no shot')
   Object.assign(context.assets, shot.light.assets)
   const tree = mergeTrees(context.pairIndex, context.merge, story.id, shot.light.tree, shot.dark.tree)
   bindRadii(tree, context.tokens.numbers)
@@ -306,7 +306,7 @@ async function exportAll(
             // root in the DOM.
             if (!job.entry.auto) throw error
             session.reset(slot)
-            context.report.warning(`${job.entry.id}: набор из каталога пропущен - ${(error as Error).message}`)
+            context.report.warning(`${job.entry.id}: catalog set skipped - ${(error as Error).message}`)
             result = null
           }
           if (!result) {
@@ -323,16 +323,16 @@ async function exportAll(
           }
           components.set(job.entry.id, result.component)
           if (result.description) descriptions.set(job.planned.item.title, result.description)
-          context.log(`${job.entry.id}: ${result.component.variants.length} вариантов за ${seconds()} с`)
+          context.log(`${job.entry.id}: ${result.component.variants.length} variants in ${seconds()} s`)
         } else {
           try {
             stories.set(job.story.id, await exportStory(job.story, session, slot, context))
           } catch (error) {
             session.reset(slot)
-            context.report.warning(`${job.story.id}: история не выгружена - ${(error as Error).message}`)
+            context.report.warning(`${job.story.id}: story not exported - ${(error as Error).message}`)
             continue
           }
-          context.log(`история ${job.story.id}: ${seconds()} с`)
+          context.log(`story ${job.story.id}: ${seconds()} s`)
         }
       }
     })
@@ -376,11 +376,11 @@ function linkInstances(components: TBuiltComponent[], stories: IStoryExport[], r
     grouped.set(key, group)
   }
   for (const [key, { count, example }] of grouped) {
-    report.warning(`вне матрицы: ${key}: ${count} узлов, например ${example}`)
+    report.warning(`outside the matrix: ${key}: ${count} nodes, for example ${example}`)
   }
   if (kept.length)
     process.stderr.write(
-      `Оставлено слоями (отличается от варианта): ${kept.length}\n  ${kept.slice(0, 12).join('\n  ')}\n`,
+      `Kept as layers (differs from the variant): ${kept.length}\n  ${kept.slice(0, 12).join('\n  ')}\n`,
     )
   return outOfMatrix
 }
@@ -469,9 +469,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
     () => false,
   )
   if (!hasIndex) {
-    process.stderr.write(
-      `Нет ${path.relative(root, indexFile)}: сначала соберите статический Storybook (storybook build)\n`,
-    )
+    process.stderr.write(`No ${path.relative(root, indexFile)}: build the static Storybook first (storybook build)\n`)
     return 1
   }
   const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8')) as {
@@ -487,7 +485,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
   const plan = planJobs(layout, storyEntries, config, values.only ?? null)
   const storyUrl = (storyId: string): string => (config.storyUrl ? `${config.storyUrl}/?path=/story/${storyId}` : '')
   process.stderr.write(
-    `Каталог: ${layout.length} страниц, ${plan.length} пунктов, ${plan.reduce((sum, item) => sum + item.components.length, 0)} наборов-кандидатов, ${plan.reduce((sum, item) => sum + item.frames.length, 0)} историй фреймами\n`,
+    `Catalog: ${layout.length} pages, ${plan.length} items, ${plan.reduce((sum, item) => sum + item.components.length, 0)} candidate sets, ${plan.reduce((sum, item) => sum + item.frames.length, 0)} stories as frames\n`,
   )
   const shots = values.shots === undefined ? null : path.resolve(root, values.shots || paths.shots.storybook)
   // Old references (past variant keys, vanished stories) only get in the way of the comparison.
@@ -515,7 +513,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
   const tabs = Math.max(1, parseInt(values.tabs, 10) || 4)
   const results = await exportAll(plan, context, tabs)
   for (const mismatch of context.merge.mismatches) report.warning(mismatch)
-  process.stderr.write(`Съёмка: ${Math.round((Date.now() - started) / 1000)} с\n`)
+  process.stderr.write(`Capture: ${Math.round((Date.now() - started) / 1000)} s\n`)
   const pages = buildPages(plan, results, storyUrl)
   const components = pages
     .flatMap((page) => page.sections.flatMap((section) => section.items))
@@ -534,7 +532,7 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
   }
   pruneAssets(context.assets, components, stories)
   const alphaTokens = deriveAlphaTokens({ tokens, components, stories })
-  process.stderr.write(`Токены с альфой: ${alphaTokens.length}\n`)
+  process.stderr.write(`Tokens with alpha: ${alphaTokens.length}\n`)
 
   const bundle: IKitBundle = {
     schema: SCHEMA_VERSION,
@@ -583,12 +581,12 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
     0,
   )
   process.stderr.write(
-    `Выгрузка: ${tokens.colors.length} цветов, ${tokens.typography.length} стилей текста, ${pages.length} страниц, ${components.length} наборов, ${variants} вариантов (склеено значений: ${collapsed}), ${stories.length} историй фреймами, ${Object.keys(context.assets).length} SVG; kit.json ${Buffer.byteLength(json)} байт, kit.zip ${zip.length} байт\n`,
+    `Export: ${tokens.colors.length} colors, ${tokens.typography.length} text styles, ${pages.length} pages, ${components.length} sets, ${variants} variants (values merged: ${collapsed}), ${stories.length} stories as frames, ${Object.keys(context.assets).length} SVG; kit.json ${Buffer.byteLength(json)} bytes, kit.zip ${zip.length} bytes\n`,
   )
   const unbound = bundle.report.unboundColors.sort((a, b) => b.count - a.count).slice(0, 10)
   for (const entry of unbound) {
     process.stderr.write(
-      `  непривязан ×${entry.count}: ${JSON.stringify(entry.light)} / ${JSON.stringify(entry.dark)} - ${entry.where.join('; ')}\n`,
+      `  unbound ×${entry.count}: ${JSON.stringify(entry.light)} / ${JSON.stringify(entry.dark)} - ${entry.where.join('; ')}\n`,
     )
   }
   return printReport(report)

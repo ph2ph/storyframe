@@ -25,7 +25,7 @@ function text(): ITextNode {
     path: '0',
     name: 'Label',
     box: { x: 15, y: 5, w: 46, h: 22 },
-    text: 'Кнопка',
+    text: 'Button',
     style: {
       family: 'Manrope',
       weight: 700,
@@ -62,17 +62,17 @@ describe('export schema', () => {
       variants: [{ variant: { Variant: 'contained' }, tree: frame([text()]), signature: ['MuiButton-root'] }],
       dependsOn: [],
     })
-    bundle.stories.push({ id: 'button--colors', name: 'Цвета', storyUrl: '', tree: frame([text()]) })
+    bundle.stories.push({ id: 'button--colors', name: 'Colors', storyUrl: '', tree: frame([text()]) })
     bundle.pages.push({
       id: 'components',
-      name: 'Компоненты',
+      name: 'Components',
       sections: [
         {
           id: 'components:Inputs',
           title: 'Inputs',
           items: [
             {
-              id: 'Компоненты/Inputs/Button',
+              id: 'Components/Inputs/Button',
               title: 'Button',
               description: '',
               storyUrl: '',
@@ -96,7 +96,7 @@ describe('export schema', () => {
     const withNode = emptyBundle()
     // A node the schema must reject: outside the node type on purpose.
     const tree = frame([{ ...text(), autoResize: 'wrong' } as unknown as ITextNode])
-    withNode.stories.push({ id: 'card', name: 'Карточка', storyUrl: '', tree })
+    withNode.stories.push({ id: 'card', name: 'Card', storyUrl: '', tree })
     expect(validateBundle(withNode).join('\n')).toContain('stories.0.tree.children.0.autoResize')
   })
 

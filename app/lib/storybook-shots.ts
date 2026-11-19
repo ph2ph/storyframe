@@ -106,8 +106,8 @@ function connect(chrome: TChromeProcess): ICdp {
     for (const request of pending.values()) request.reject(new Error(`Chrome: ${reason}\n${stderr}`))
     pending.clear()
   }
-  chrome.on('error', (error) => rejectAll(`${error.message}; путь к браузеру задаёт переменная CHROME`))
-  chrome.on('exit', (code, signal) => rejectAll(`процесс завершился, код ${code ?? signal}`))
+  chrome.on('error', (error) => rejectAll(`${error.message}; the browser path is set by the CHROME variable`))
+  chrome.on('exit', (code, signal) => rejectAll(`process exited, code ${code ?? signal}`))
   chrome.stderr.setEncoding('utf8')
   chrome.stderr.on('data', (chunk: string) => {
     stderr = (stderr + chunk).slice(-4000)
@@ -148,7 +148,7 @@ function connect(chrome: TChromeProcess): ICdp {
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
           listeners.delete(listener)
-          reject(new Error(`${method}: нет события за ${TIMEOUT_MS / 1000} с`))
+          reject(new Error(`${method}: no event within ${TIMEOUT_MS / 1000} s`))
         }, TIMEOUT_MS)
         const listener = (message: ICdpMessage) => {
           if (message.method !== method || message.sessionId !== sessionId) return
@@ -251,15 +251,15 @@ async function settle(
   const deadline = Date.now() + timeoutMs
   const waitFor = async (isReady: () => boolean, what: string) => {
     while (!isReady()) {
-      if (Date.now() > deadline) throw new Error(`не дождались: ${what}`)
+      if (Date.now() > deadline) throw new Error(`timed out waiting for: ${what}`)
       await new Promise((resolve) => setTimeout(resolve, 50))
     }
   }
 
   // The `finished` phase comes both after a render error and after `play` completes.
-  await waitFor(() => win.__STORYBOOK_PREVIEW__?.currentRender?.phase === 'finished', 'рендер истории')
+  await waitFor(() => win.__STORYBOOK_PREVIEW__?.currentRender?.phase === 'finished', 'story render')
   if (win.document.body.classList.contains('sb-show-errordisplay')) {
-    throw new Error(win.document.getElementById('error-message')?.textContent || 'ошибка рендера истории')
+    throw new Error(win.document.getElementById('error-message')?.textContent || 'story render error')
   }
 
   // The grid and windows re-layout after measuring the container and after fonts load, that is, already after
@@ -273,19 +273,19 @@ async function settle(
     lastMutation = Date.now()
     return waitFor(() => Date.now() - lastMutation >= quietMs, what)
   }
-  await waitQuiet('паузы в изменениях DOM')
+  await waitQuiet('a pause in DOM changes')
   // A font face loads when text using it first goes through layout, and headless Chrome lays out lazily:
   // `fonts.ready` resolved before the face was requested, and the text was captured with fallback font metrics
   // (bold labels, monospaced digits), depending on which stories the tab had opened before. So all font faces
   // declared on the page are loaded right away.
   await Promise.allSettled([...win.document.fonts].map((face) => face.load()))
   await win.document.fonts.ready
-  await waitQuiet('паузы в изменениях DOM после загрузки шрифтов')
+  await waitQuiet('a pause in DOM changes after fonts load')
   observer.disconnect()
   await Promise.race([
     new Promise((resolve) => win.requestAnimationFrame(() => win.requestAnimationFrame(resolve))),
     new Promise((_resolve, reject) => {
-      setTimeout(() => reject(new Error('не дождались: кадров отрисовки')), Math.max(0, deadline - Date.now()))
+      setTimeout(() => reject(new Error('timed out waiting for: animation frames')), Math.max(0, deadline - Date.now()))
     }),
   ])
 }

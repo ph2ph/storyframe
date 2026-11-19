@@ -30,7 +30,7 @@ function derive(base: IColorToken, opacity: number): IColorToken {
     name: `${base.name}-${String(percent).padStart(2, '0')}`,
     light: withAlpha(base.light),
     dark: withAlpha(base.dark),
-    description: `${base.name} с непрозрачностью ${percent} %: alpha(${code}, ${opacity})`,
+    description: `${base.name} at ${percent} % opacity: alpha(${code}, ${opacity})`,
     ...(base.code === undefined ? {} : { code: alphaTokenId(base.code, opacity) }),
     // A semi-transparent text color is still a text color.
     ...(base.text === undefined ? {} : { text: base.text }),

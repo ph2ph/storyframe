@@ -165,18 +165,18 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
   rows.sort((a, b) => b.mismatch - a.mismatch)
   const top = Number(values.top)
   console.log(
-    `Сверено: ${rows.length}, нет снимка Figma: ${missing}, расхождение > 1 %: ${rows.filter((row) => row.mismatch > 0.01).length}`,
+    `Compared: ${rows.length}, no Figma shot: ${missing}, mismatch > 1 %: ${rows.filter((row) => row.mismatch > 0.01).length}`,
   )
   if (oversized.length > 0) {
-    console.log(`Не сверено (больше ${MAX_PIXELS / 1_000_000} Мпикс): ${oversized.join(', ')}`)
+    console.log(`Not compared (over ${MAX_PIXELS / 1_000_000} Mpx): ${oversized.join(', ')}`)
   }
   for (const row of rows.slice(0, top)) {
     const size =
       row.sizeDelta[0] || row.sizeDelta[1]
-        ? ` размер ${row.sizeDelta[0] >= 0 ? '+' : ''}${row.sizeDelta[0]}×${row.sizeDelta[1] >= 0 ? '+' : ''}${row.sizeDelta[1]}`
+        ? ` size ${row.sizeDelta[0] >= 0 ? '+' : ''}${row.sizeDelta[0]}×${row.sizeDelta[1] >= 0 ? '+' : ''}${row.sizeDelta[1]}`
         : ''
     console.log(`${(row.mismatch * 100).toFixed(1).padStart(5)} %  ${row.relative}${size}`)
   }
-  console.log(`Картинки «эталон | Figma | разница»: ${path.relative(root, values.out)}`)
+  console.log(`Images "reference | Figma | diff": ${path.relative(root, values.out)}`)
   return 0
 }

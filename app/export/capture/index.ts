@@ -40,7 +40,7 @@ window.__storyframeCapture = {
   find,
   capture(selector, name) {
     const root = find(selector)
-    if (!root) throw new Error(`Нет элемента ${selector}`)
+    if (!root) throw new Error(`No element ${selector}`)
     return captureElement(window, root, name)
   },
 }

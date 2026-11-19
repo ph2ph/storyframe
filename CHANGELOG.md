@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Releases are published from GitHub Actions through npm trusted publishing, with provenance.
+- English throughout: CLI output, export warnings and the report, the Variants block, the state labels of the
+  Figma sets (`default state`, `on hover`, ...) and token descriptions. Projects that matched the Russian texts of
+  0.1.0 should update.
 
 ## 0.1.0, 2026-11-19
 

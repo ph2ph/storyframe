@@ -34,14 +34,14 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
     if (request.method === 'POST' && request.url === '/begin') {
       rmSync(dir, { recursive: true, force: true })
       mkdirSync(dir, { recursive: true })
-      process.stderr.write('Новая отправка: папка снимков очищена\n')
+      process.stderr.write('New upload: shots folder cleared\n')
       response.end('ok')
       return
     }
     const match = /^\/shot\/(.+)$/.exec(request.url ?? '')
     if (request.method !== 'POST' || !match) {
       response.statusCode = 404
-      response.end('POST /shot/<папка>/<имя>.png')
+      response.end('POST /shot/<folder>/<name>.png')
       return
     }
     const segments = decodeURIComponent(match[1])
@@ -58,12 +58,12 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
       const target = path.join(dir, ...segments)
       mkdirSync(path.dirname(target), { recursive: true })
       writeFileSync(target, bytes)
-      process.stderr.write(`${segments.join('/')} ${bytes.length} Б\n`)
+      process.stderr.write(`${segments.join('/')} ${bytes.length} B\n`)
       response.end('ok')
     })
   })
   await new Promise<void>((resolve) => server.listen(Number(values.port), resolve))
-  process.stderr.write(`Приёмник снимков: http://localhost:${values.port}/shot/… → ${path.relative(root, dir)}\n`)
+  process.stderr.write(`Shots receiver: http://localhost:${values.port}/shot/… → ${path.relative(root, dir)}\n`)
   // The server runs until Ctrl+C.
   return new Promise(() => {})
 }

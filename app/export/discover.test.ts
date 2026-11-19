@@ -16,45 +16,45 @@ type TFakeElement = { classList: string[]; children: TFakeElement[] }
 const INDEX = [
   {
     type: 'story',
-    id: 'компоненты-mui-inputs-fab--basic',
-    title: 'Компоненты MUI/Inputs/Fab',
+    id: 'components-mui-inputs-fab--basic',
+    title: 'Components MUI/Inputs/Fab',
     importPath: './src/a.tsx',
   },
   {
     type: 'story',
-    id: 'компоненты-mui-inputs-fab--colors',
-    title: 'Компоненты MUI/Inputs/Fab',
+    id: 'components-mui-inputs-fab--colors',
+    title: 'Components MUI/Inputs/Fab',
     importPath: './src/a.tsx',
   },
   {
     type: 'story',
-    id: 'компоненты-mui-inputs-button--basic',
-    title: 'Компоненты MUI/Inputs/Button',
+    id: 'components-mui-inputs-button--basic',
+    title: 'Components MUI/Inputs/Button',
     importPath: './src/b.tsx',
   },
   {
     type: 'story',
-    id: 'компоненты-mui-utils-modal--basic',
-    title: 'Компоненты MUI/Utils/Modal',
+    id: 'components-mui-utils-modal--basic',
+    title: 'Components MUI/Utils/Modal',
     importPath: './src/m.tsx',
   },
-  { type: 'story', id: 'компоненты-datatable--collapsed', title: 'Компоненты/DataTable', importPath: './src/d.tsx' },
-  { type: 'story', id: 'компоненты-datatable--expanded', title: 'Компоненты/DataTable', importPath: './src/d.tsx' },
+  { type: 'story', id: 'components-datatable--collapsed', title: 'Components/DataTable', importPath: './src/d.tsx' },
+  { type: 'story', id: 'components-datatable--expanded', title: 'Components/DataTable', importPath: './src/d.tsx' },
   {
     type: 'docs',
-    id: 'компоненты-mui-inputs-fab--docs',
-    title: 'Компоненты MUI/Inputs/Fab',
+    id: 'components-mui-inputs-fab--docs',
+    title: 'Components MUI/Inputs/Fab',
     importPath: './src/a.tsx',
   },
-  { type: 'story', id: 'гайдлайн-цвета--basic', title: 'Гайдлайн/Цвета', importPath: './src/g.tsx' },
+  { type: 'story', id: 'guideline-colors--basic', title: 'Guideline/Colors', importPath: './src/g.tsx' },
 ]
 
 describe('discovery of catalog components', () => {
   it('the "Basic" story of an item is `--basic`, otherwise the first one', () => {
-    const fab = INDEX.filter((entry) => entry.type === 'story' && entry.title === 'Компоненты MUI/Inputs/Fab')
-    expect(pickStory(fab).id).toBe('компоненты-mui-inputs-fab--basic')
-    const table = INDEX.filter((entry) => entry.title === 'Компоненты/DataTable')
-    expect(pickStory(table).id).toBe('компоненты-datatable--collapsed')
+    const fab = INDEX.filter((entry) => entry.type === 'story' && entry.title === 'Components MUI/Inputs/Fab')
+    expect(pickStory(fab).id).toBe('components-mui-inputs-fab--basic')
+    const table = INDEX.filter((entry) => entry.title === 'Components/DataTable')
+    expect(pickStory(table).id).toBe('components-datatable--collapsed')
   })
 
   it('axes from argTypes: lists without inherit, flags without states and modifiers', () => {
@@ -124,9 +124,9 @@ describe('excluding the value on which the story fails', () => {
 
   it('parses the variant from the error message and finds the axis defaults', () => {
     const message =
-      'компоненты-mui-inputs-select--basic Variant=standard, Multiple=true, State=default (light): Error: #2'
+      'components-mui-inputs-select--basic Variant=standard, Multiple=true, State=default (light): Error: #2'
     expect(failedVariant(message)).toEqual({ Variant: 'standard', Multiple: 'true', State: 'default' })
-    expect(failedVariant('что-то другое')).toBeNull()
+    expect(failedVariant('something else')).toBeNull()
     const initialArgs = { variant: 'outlined', multiple: false }
     expect(defaultValue(entry, 'Variant', initialArgs)).toBe('outlined')
     expect(defaultValue(entry, 'Multiple', initialArgs)).toBe('false')

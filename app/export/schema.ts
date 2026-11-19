@@ -268,7 +268,7 @@ export function validateBundle(bundle: unknown): string[] {
   const result = v.safeParse(bundleSchema, bundle)
   if (result.success) return []
   return result.issues.map((issue) => {
-    const where = issue.path?.map((segment) => String(segment.key)).join('.') || '<корень>'
+    const where = issue.path?.map((segment) => String(segment.key)).join('.') || '<root>'
     return `${where}: ${issue.message}`
   })
 }

@@ -40,6 +40,8 @@ describe('loading the project theme', () => {
   })
 
   it('a theme not in storyframe format fails with the violation paths', async () => {
-    await expect(loadTheme(root, 'broken.ts')).rejects.toThrow(/broken\.ts не в формате storyframe:\n {2}fonts: /)
+    await expect(loadTheme(root, 'broken.ts')).rejects.toThrow(
+      /broken\.ts is not in the storyframe format:\n {2}fonts: /,
+    )
   })
 })

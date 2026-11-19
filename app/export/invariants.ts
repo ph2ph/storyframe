@@ -40,8 +40,8 @@ export function checkBundle(
     strictIds = [],
   }: { unboundExceptions?: Record<string, string>; bytes: number; strictIds?: string[] },
 ): void {
-  for (const issue of validateBundle(bundle)) report.violation(`схема выгрузки: ${issue}`)
-  if (bytes > MAX_BUNDLE_BYTES) report.violation(`kit.json весит ${bytes} байт, предел ${MAX_BUNDLE_BYTES}`)
+  for (const issue of validateBundle(bundle)) report.violation(`export schema: ${issue}`)
+  if (bytes > MAX_BUNDLE_BYTES) report.violation(`kit.json weighs ${bytes} bytes, limit ${MAX_BUNDLE_BYTES}`)
 
   const used = new Set<string>()
   const foreignFonts = new Map<string, number>()
@@ -59,29 +59,30 @@ export function checkBundle(
       if (node.type === 'text' && !fontAllowed(bundle.fonts, node.style.family, node.style.weight)) {
         const component = where.split(' ')[0]
         const font = `${node.style.family} ${node.style.weight}`
-        if (strictIds.includes(component)) report.violation(`${where} ${node.path}: шрифт ${font} не из шрифтов темы`)
+        if (strictIds.includes(component))
+          report.violation(`${where} ${node.path}: font ${font} is not from the theme fonts`)
         else foreignFonts.set(`${component}|${font}`, (foreignFonts.get(`${component}|${font}`) ?? 0) + 1)
       }
       if (node.type === 'svg') {
         used.add(node.asset)
-        if (!(node.asset in bundle.assets.svg)) report.violation(`${where} ${node.path}: нет ассета ${node.asset}`)
+        if (!(node.asset in bundle.assets.svg)) report.violation(`${where} ${node.path}: no asset ${node.asset}`)
       }
     }
   }
   for (const key of Object.keys(bundle.assets.svg)) {
-    if (!used.has(key)) report.violation(`ассет ${key} не используется`)
+    if (!used.has(key)) report.violation(`asset ${key} is unused`)
   }
   // Component sets from the catalog without a registry entry may contain text in a system font (ButtonBase
   // without typography): the plugin takes it from Figma, and for the catalog it is a reason to fix the story.
   for (const [key, count] of foreignFonts) {
     const [component, font] = key.split('|')
-    report.warning(`${component}: ${count} текстов шрифтом ${font} не из шрифтов темы (набор не из конфигурации)`)
+    report.warning(`${component}: ${count} texts in font ${font} not from the theme fonts (set not from the config)`)
   }
 
   for (const component of bundle.components) {
     const expected = component.axes.reduce((product, axis) => product * axis.values.length, 1)
     if (component.variants.length !== expected) {
-      report.violation(`${component.id}: ${component.variants.length} вариантов при произведении осей ${expected}`)
+      report.violation(`${component.id}: ${component.variants.length} variants for an axes product of ${expected}`)
     }
   }
   const components = new Set(bundle.components.map((component) => component.id))
@@ -90,9 +91,9 @@ export function checkBundle(
     for (const section of page.sections) {
       for (const item of section.items) {
         if (item.component && !components.has(item.component))
-          report.violation(`${page.name} / ${item.id}: нет набора ${item.component}`)
+          report.violation(`${page.name} / ${item.id}: no set ${item.component}`)
         for (const id of item.stories)
-          if (!stories.has(id)) report.violation(`${page.name} / ${item.id}: нет истории ${id}`)
+          if (!stories.has(id)) report.violation(`${page.name} / ${item.id}: no story ${id}`)
       }
     }
   }
@@ -108,11 +109,11 @@ export function checkBundle(
   }
   for (const [component, count] of unboundByComponent) {
     const reason = unboundExceptions[component]
-    if (reason) report.warning(`${component}: ${count} непривязанных цветов (допущено: ${reason})`)
+    if (reason) report.warning(`${component}: ${count} unbound colors (allowed: ${reason})`)
     else if (!strictIds.includes(component))
-      report.warning(`${component}: ${count} непривязанных цветов (набор из каталога без записи в конфигурации)`)
+      report.warning(`${component}: ${count} unbound colors (catalog set without a config entry)`)
     else
-      report.violation(`${component}: ${count} непривязанных цветов - добавьте токен в тему или исключение с причиной`)
+      report.violation(`${component}: ${count} unbound colors - add a token to the theme or an exception with a reason`)
   }
 }
 

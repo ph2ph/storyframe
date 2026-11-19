@@ -47,7 +47,7 @@ export function normalizeConfig(raw: IStoryframeConfig = {}): TConfig {
   }
 }
 
-/** Segments of a Storybook story title (`Компоненты MUI/Inputs/Button`). */
+/** Segments of a Storybook story title (`Components MUI/Inputs/Button`). */
 export function titleSegments(title: string): string[] {
   return title
     .split('/')
@@ -55,7 +55,7 @@ export function titleSegments(title: string): string[] {
     .filter(Boolean)
 }
 
-/** A prefix covers a title by whole segments: `Компоненты` does not cover `Компоненты MUI/…`. */
+/** A prefix covers a title by whole segments: `Components` does not cover `Components MUI/…`. */
 export function coversTitle(prefix: string, title: string): boolean {
   const head = titleSegments(prefix)
   const segments = titleSegments(title)
@@ -81,7 +81,7 @@ export function resolvePages(config: TConfig, titles: string[]): TPage[] {
 /**
  * Place of a catalog title in the file: the page with the longest matching prefix, the section (the catalog
  * folder under the prefix) and the item (the component). A title without a folder goes to the section named
- * after the prefix itself (`Компоненты/DataTable` goes to "Компоненты"). `null` means the title is excluded or
+ * after the prefix itself (`Components/DataTable` goes to "Components"). `null` means the title is excluded or
  * did not land on any page.
  */
 export function placeTitle(title: string, pages: TPage[], exclude: string[] = []): TPlace | null {
@@ -100,7 +100,7 @@ export function placeTitle(title: string, pages: TPage[], exclude: string[] = []
   const rest = segments.slice(best.depth)
   // The title is covered by a non-empty prefix: it has a last segment.
   const item = (rest.at(-1) ?? segments.at(-1)) as string
-  // Items directly under the prefix (Компоненты/DataTable, Гайдлайн/Палитра) share one folder named after the
+  // Items directly under the prefix (Components/DataTable, Guideline/Palette) share one folder named after the
   // catalog section.
   const section = rest.length > 1 ? rest.slice(0, -1).join('/') : best.group
   return { page: best.page, section, item }

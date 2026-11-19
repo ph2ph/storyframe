@@ -84,7 +84,7 @@ function text(color: IRgba): ITextNode {
     path: '/0',
     name: 'Label',
     box: { x: 0, y: 0, w: 40, h: 20 },
-    text: 'Кнопка',
+    text: 'Button',
     style: {
       family: 'Manrope',
       weight: 700,

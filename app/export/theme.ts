@@ -34,7 +34,7 @@ const themeSchema = v.object({
       }),
       v.check(
         (color) => typeof color.light === 'string' || typeof color.dark === 'string',
-        'нужно значение хотя бы одного режима',
+        'at least one mode value is required',
       ),
     ),
   ),
@@ -84,7 +84,7 @@ export const EMPTY_THEME: IStoryframeTheme = { fonts: [], colors: [], numbers: [
 export function validateTheme(theme: unknown): string[] {
   const result = v.safeParse(themeSchema, theme)
   if (result.success) return []
-  return result.issues.map((issue) => `${v.getDotPath(issue) ?? '(корень)'}: ${issue.message}`)
+  return result.issues.map((issue) => `${v.getDotPath(issue) ?? '(root)'}: ${issue.message}`)
 }
 
 /**
@@ -107,7 +107,7 @@ export async function loadTheme(root: string, file: string | null): Promise<ISto
     const exported: unknown = module.default
     const theme: unknown = typeof exported === 'function' ? await (exported as () => unknown)() : exported
     const issues = validateTheme(theme)
-    if (issues.length > 0) throw new Error(`тема ${file} не в формате storyframe:\n  ${issues.join('\n  ')}`)
+    if (issues.length > 0) throw new Error(`theme ${file} is not in the storyframe format:\n  ${issues.join('\n  ')}`)
     // The theme passed the schema check above.
     return theme as IStoryframeTheme
   } finally {

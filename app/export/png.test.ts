@@ -13,6 +13,6 @@ describe('png', () => {
   })
 
   it('rejects a non-PNG', () => {
-    expect(() => decodePng(Buffer.from('hello'))).toThrow('Не PNG')
+    expect(() => decodePng(Buffer.from('hello'))).toThrow('Not a PNG')
   })
 })

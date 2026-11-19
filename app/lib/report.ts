@@ -27,11 +27,11 @@ export function createReport(): IReport {
 /** Prints the report to stderr and returns the exit code. */
 export function printReport(report: IReport, stream: NodeJS.WritableStream = process.stderr): number {
   if (report.warnings.length > 0) {
-    stream.write(`Предупреждения (${report.warnings.length}):\n`)
+    stream.write(`Warnings (${report.warnings.length}):\n`)
     for (const message of report.warnings) stream.write(`  - ${message}\n`)
   }
   if (report.violations.length > 0) {
-    stream.write(`НАРУШЕНИЯ (${report.violations.length}):\n`)
+    stream.write(`VIOLATIONS (${report.violations.length}):\n`)
     for (const message of report.violations) stream.write(`  - ${message}\n`)
     return 1
   }

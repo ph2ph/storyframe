@@ -298,9 +298,9 @@ export async function main(argv = process.argv.slice(2), root = process.cwd()): 
       const dir = path.join(out, job.folder)
       await mkdir(dir, { recursive: true })
       await writeFile(path.join(dir, `${job.name.replaceAll('/', '-')}.png`), Buffer.from(data, 'base64'))
-      if ((index + 1) % 200 === 0) process.stderr.write(`  ${index + 1} из ${selected.length}\n`)
+      if ((index + 1) % 200 === 0) process.stderr.write(`  ${index + 1} of ${selected.length}\n`)
     }
-    process.stderr.write(`Эмуляция: ${selected.length} снимков в ${path.relative(root, out)}\n`)
+    process.stderr.write(`Emulation: ${selected.length} shots in ${path.relative(root, out)}\n`)
   } finally {
     await chrome.close()
     await rm(profile, { recursive: true, force: true })

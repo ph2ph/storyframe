@@ -19,7 +19,7 @@ function tree(width: number, { color = 'palette.primary.main', textX = 16 } = {}
         path: '/0',
         name: 'Label',
         box: { x: textX, y: 20, w: 80, h: 24 },
-        text: 'Шапка',
+        text: 'Header',
         // Only the fields the comparison needs: the fixture style is partial.
         style: { family: 'Manrope', weight: 700, sizePx: 16, lineHeightPx: 24 } as ITextStyleValues,
         color: { token: 'palette.text.primary' },
@@ -46,7 +46,7 @@ describe('merging of indistinguishable variants', () => {
     })
     const component: IDedupeComponent = {
       axes: [
-        { name: 'Position', values: ['fixed', 'static', 'sticky'], description: 'Позиционирование' },
+        { name: 'Position', values: ['fixed', 'static', 'sticky'], description: 'Positioning' },
         { name: 'Color', values: ['primary', 'error'] },
       ],
       variants: [
@@ -60,7 +60,7 @@ describe('merging of indistinguishable variants', () => {
     }
     const collapsed = collapseIdentical(component, { Position: 'fixed', Color: 'primary' })
     expect(collapsed).toEqual([
-      { axis: 'Position', values: ['static', 'sticky'], into: 'fixed', description: 'Позиционирование' },
+      { axis: 'Position', values: ['static', 'sticky'], into: 'fixed', description: 'Positioning' },
     ])
     expect(component.axes.map((axis) => axis.name)).toEqual(['Color'])
     expect(component.variants.map((entry) => entry.variant)).toEqual([{ Color: 'primary' }, { Color: 'error' }])

@@ -49,16 +49,16 @@ export default defineConfig({
   theme: './storyframe.theme.ts',
   storyUrl: 'https://storybook.example.com',
   pages: [
-    { id: 'components', name: 'Компоненты', include: ['Компоненты', 'Компоненты MUI'] },
-    { id: 'icons', name: 'Иконки', include: ['Компоненты/Иконки'] },
+    { id: 'components', name: 'Components', include: ['Components', 'Components MUI'] },
+    { id: 'icons', name: 'Icons', include: ['Components/Icons'] },
   ],
-  exclude: ['Внутреннее'],
+  exclude: ['Internal'],
   skip: { Modal: 'portal: the content is rendered outside the story root' },
   components: [
     {
       id: 'Button',
       name: 'Inputs/Button',
-      storyId: 'компоненты-mui-inputs-button--basic',
+      storyId: 'components-mui-inputs-button--basic',
       storyFile: 'src/Button.stories.tsx',
       root: '.MuiButton-root',
       axes: [
@@ -135,7 +135,7 @@ storyframe compare                                 # comparison of Figma (or emu
 ```
 
 `--only` exports a part of the catalog for checking. Do not apply such an export to the working Figma file: the
-plugin removes the folders and items missing from it (their component sets move to Deprecated, «Устаревшее»).
+plugin removes the folders and items missing from it (their component sets move to Deprecated, "Deprecated").
 
 Capture keeps `--tabs` Chrome tabs open; on a machine without spare memory use `--tabs 2`.
 

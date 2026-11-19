@@ -73,13 +73,13 @@ describe('MUI theme adapter', () => {
       light,
       shadowNames: { 1: 'soft' },
       canvas: 'palette.background.gradient',
-      describe: (address) => (address === 'palette.primary.main' ? 'Действия' : undefined),
+      describe: (address) => (address === 'palette.primary.main' ? 'Actions' : undefined),
       roles: { heading: 'typography.h6' },
     })
     expect(theme.shadows[0]).toMatchObject({ id: 'shadows.1', name: 'Shadow/soft' })
     expect(theme.shadows[1].name).toBe('Shadow/2')
     expect(theme.canvas).toEqual({ light: 'radial-gradient(#fff, #000)', dark: 'radial-gradient(#fff, #000)' })
-    expect(theme.colors.find((color) => color.id === 'palette.primary.main')!.description).toBe('Действия')
+    expect(theme.colors.find((color) => color.id === 'palette.primary.main')!.description).toBe('Actions')
     expect(theme.roles!.heading).toBe('typography.h6')
     // Identical shadows under different indexes are a single effect style.
     expect(buildTokens(theme).tokens.effects.map((effect) => effect.name)).toEqual(['Shadow/soft', 'Shadow/2'])
